@@ -594,6 +594,7 @@ class Ps_checkout extends PaymentModule
 
         $property = 'status'; // subject property name where the state is stored
         $marking = new \Symfony\Component\Workflow\MarkingStore\SingleStateMarkingStore($property, new \Symfony\Component\PropertyAccess\PropertyAccessor('getStatus'));
+
         $workflow = new \Symfony\Component\Workflow\Workflow($definition, $marking, new \PrestaShop\Module\PrestashopCheckout\EventDispatcher(), 'onboarding');
 
         $session = $sessionManager->start(['user_id' => '1', 'shop_id' => '1', 'process_type' => 'onboarding']);
