@@ -581,6 +581,29 @@ class Ps_checkout extends PaymentModule
 
     public function getContent()
     {
+        $definitionBuilder = new \Symfony\Component\Workflow\DefinitionBuilder();
+        $definition = $definitionBuilder->addPlaces(['ONBOARDING_STARTED', 'ONBOARDING_FINISHED'])
+            // Transitions are defined with a unique name, an origin place and a destination place
+            ->setInitialPlace('ONBOARDING_STARTED')
+            ->addTransition(new \Symfony\Component\Workflow\Transition('finish', 'ONBOARDING_STARTED', 'ONBOARDING_FINISHED'))
+            ->build()
+        ;
+
+        /** @var \PrestaShop\Module\PrestashopCheckout\Session\SessionManager $sessionManager */
+        $sessionManager = $this->getService('ps_checkout.session.manager');
+
+        $property = 'status'; // subject property name where the state is stored
+        $marking = new \Symfony\Component\Workflow\MarkingStore\SingleStateMarkingStore($property, new \Symfony\Component\PropertyAccess\PropertyAccessor('getStatus'));
+        $workflow = new \Symfony\Component\Workflow\Workflow($definition, $marking, new \PrestaShop\Module\PrestashopCheckout\EventDispatcher(), 'onboarding');
+
+        $session = $sessionManager->start(['user_id' => '1', 'shop_id' => '1', 'process_type' => 'onboarding']);
+
+        $registry = new \Symfony\Component\Workflow\Registry();
+        $registry->add($workflow, new \Symfony\Component\Workflow\SupportStrategy\ClassInstanceSupportStrategy(\PrestaShop\Module\PrestashopCheckout\Session\Session::class));
+
+        $sessionWorkflow = $registry->get($session);
+        $sessionWorkflow->apply($session, 'finish');
+
         /** @var \PrestaShop\Module\PrestashopCheckout\Repository\PaypalAccountRepository $paypalAccount */
         $paypalAccount = $this->getService('ps_checkout.repository.paypal.account');
         /** @var \PrestaShop\Module\PrestashopCheckout\Repository\PsAccountRepository $psAccount */
