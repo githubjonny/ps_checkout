@@ -33,6 +33,7 @@
     "symfony/dependency-injection": "^3.4",
     "symfony/finder": "^3.4",
     "symfony/options-resolver": "^3.4",
+    "symfony/workflow": "3.4.47",
     "vlucas/phpdotenv": "^3.4",
     "webmozart/assert": "^1.0"
   },
