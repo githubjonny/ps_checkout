@@ -164,6 +164,9 @@
       },
       configurePsAccountsURL() {
         return this.$store.state.onboarding.psAccountsConfigureURL;
+      },
+      isPsAccountsEnabled() {
+        return this.$store.state.onboarding.psAccountsEnabled;
       }
     },
     methods: {
