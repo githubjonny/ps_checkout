@@ -155,6 +155,15 @@
       },
       checkoutAccountStatus() {
         return this.$store.state.firebase.onboardingCompleted;
+      },
+      loggedInWithPsCheckoutAccount() {
+        return this.$store.state.onboarding.psCheckoutOnboarded;
+      },
+      loggedInWithPsAccountsAccount() {
+        return this.$store.state.onboarding.psAccountsOnboarded;
+      },
+      configurePsAccountsURL() {
+        return this.$store.state.onboarding.psAccountsConfigureURL;
       }
     },
     methods: {
