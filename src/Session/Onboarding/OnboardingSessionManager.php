@@ -75,17 +75,15 @@ class OnboardingSessionManager extends SessionManager
      */
     public function openOnboarding($data, $isShopCreated = false)
     {
+        $correlationId = Uuid::uuid4()->toString();
         $paymentAuthentication = new Authentication(\Context::getContext()->link);
-        $authToken = $paymentAuthentication->getAuthToken();
-        $authToken = [
-            'auth_token' => Uuid::uuid4()->toString(),
-            'expires_at' => SessionHelper::updateExpirationDate(date('Y-m-d H:i:s')),
-        ];
+        $authToken = $paymentAuthentication->getAuthToken('onboarding', $correlationId);
         $sessionData = [
+            'correlation_id' => $correlationId,
             'user_id' => (int) $this->context->employee->id,
             'shop_id' => (int) $this->context->shop->id,
             'is_closed' => false,
-            'auth_token' => $authToken['auth_token'],
+            'auth_token' => $authToken['token'],
             'status' => $isShopCreated ? $this->states['SHOP_CREATED'] : $this->configuration['initial_state'],
             'expires_at' => $authToken['expires_at'],
             'is_sse_opened' => false,

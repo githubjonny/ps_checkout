@@ -207,14 +207,15 @@ class AdminAjaxPrestashopCheckoutController extends ModuleAdminController
             $this->ajaxDie(json_encode($errors));
         }
 
-        // Save form in database
-        if (false === $this->savePsxForm($psxForm)) {
-            $this->ajaxDie(json_encode(['Cannot save in database.']));
+        // Save form in database*
+        $response = $this->savePsxForm($psxForm);
+
+        if (!$response) {
+            $this->ajaxDie(json_encode(['Cannot save business form in database.']));
         }
 
-        /** @var PrestaShop\Module\PrestashopCheckout\Api\Psx\Onboarding $psxOnboarding */
-        $psxOnboarding = $this->module->getService('ps_checkout.api.psx.onboarding');
-        $response = $psxOnboarding->setOnboardingMerchant(array_filter($psxForm));
+        $onboardingApi = new Onboarding($this->context->link);
+        $response = $onboardingApi->createShop(array_filter($psxForm));
 
         $this->ajaxDie(json_encode($response));
     }
@@ -244,15 +245,25 @@ class AdminAjaxPrestashopCheckoutController extends ModuleAdminController
     }
 
     /**
-     * AJAX: Retrieve the onboarding paypal link
+     * AJAX: Onboard a merchant on PSL
      */
-    public function ajaxProcessGetOnboardingLink()
+    public function ajaxProcessOnboard()
     {
-        // Generate a new onboarding link to lin a new merchant
         $this->ajaxDie(
-            json_encode((new Onboarding($this->context->link))->getOnboardingLink())
+            json_encode((new Onboarding($this->context->link))->onboard())
         );
     }
+
+    // /**
+    //  * AJAX: Retrieve the onboarding paypal link
+    //  */
+    // public function ajaxProcessGetOnboardingLink()
+    // {
+    //     // Generate a new onboarding link to lin a new merchant
+    //     $this->ajaxDie(
+    //         json_encode((new Onboarding($this->context->link))->getOnboardingLink())
+    //     );
+    // }
 
     /**
      * AJAX: Retrieve Reporting informations

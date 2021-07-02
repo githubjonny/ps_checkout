@@ -20,8 +20,6 @@
 
 namespace PrestaShop\Module\PrestashopCheckout\Session;
 
-use Ramsey\Uuid\Uuid;
-
 class AbstractSessionRepository implements SessionRepositoryInterface
 {
     /**
@@ -55,7 +53,7 @@ class AbstractSessionRepository implements SessionRepositoryInterface
         $data = isset($sessionData['data']) ? $sessionData['data'] : null;
 
         $insertData = [
-            'correlation_id' => Uuid::uuid4()->toString(),
+            'correlation_id' => pSQL($sessionData['correlation_id']),
             'user_id' => $sessionData['user_id'],
             'shop_id' => $sessionData['shop_id'],
             'is_closed' => $sessionData['is_closed'],

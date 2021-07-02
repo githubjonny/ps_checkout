@@ -487,7 +487,11 @@
         this.$store
           .dispatch({
             type: 'psxSendData',
-            form: this.form
+            form: {
+              ...this.form,
+              business_category: parseInt(this.form.business_category, 10),
+              business_sub_category: parseInt(this.form.business_sub_category, 10)
+            }
           })
           .then(response => {
             if (response.status === true) {
@@ -501,20 +505,20 @@
               });
               this.$store
                 .dispatch({
-                  type: 'getOnboardingLink'
-                })
-                .then(response => {
-                  let session = this.$store.state.session.onboarding;
-                  session.data.shop = {};
-                  session.data.shop.paypal_onboarding_url =
-                    response.onboardingLink;
-
-                  this.$store.dispatch({
-                    type: 'transitOnboardingSession',
-                    sessionAction: 'create_shop',
-                    session: session
-                  });
-                });
+                  type: 'onboard'
+              });
+                // .then(response => {
+                //   let session = this.$store.state.session.onboarding;
+                //   session.data.shop = {};
+                //   session.data.shop.paypal_onboarding_url =
+                //     response.onboardingLink;
+                //
+                //   this.$store.dispatch({
+                //     type: 'transitOnboardingSession',
+                //     sessionAction: 'create_shop',
+                //     session: session
+                //   });
+                // });
               this.$store.dispatch('psxOnboarding', response.status);
               this.$router
                 .push('/authentication')

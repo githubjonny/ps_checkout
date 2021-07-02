@@ -117,7 +117,7 @@ class OnboardingStateHandler
             $onboarding = new Onboarding(\Context::getContext()->link);
             $data = [
                 'shop' => [
-                    'paypal_onboarding_url' => $onboarding->getOnboardingLink()['onboardingLink'],
+                    'paypal_onboarding_url' => $onboarding->onboard()['onboardingLink'],
                 ],
             ];
             $data = array_merge(json_decode($this->onboardingSession->getData(), true), $data);

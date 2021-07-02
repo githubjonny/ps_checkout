@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PrestashopCheckout\Api\Payment;
 
 use PrestaShop\Module\PrestashopCheckout\Api\Payment\Client\PaymentClient;
+use PrestaShop\Module\PrestashopCheckout\Exception\PsCheckoutSessionException;
 
 /**
  * Handle dispute calls
@@ -30,12 +31,30 @@ class Authentication extends PaymentClient
     /**
      * Get an auth token from PSL
      *
+     * @param string $type
+     * @param string $correlationId
+     *
      * @return array
      */
-    public function getAuthToken()
+    public function getAuthToken($type, $correlationId)
     {
-        $this->setRoute('/auth');
+        $this->setRoute('/' . $type . '-sessions');
 
-        return $this->post();
+        $response = $this->post([
+            'headers' => [
+                'X-Correlation-Id' => $correlationId,
+            ],
+        ]);
+
+        if (!$response['status']) {
+            throw new PsCheckoutSessionException('Unable to retrieve ' . $type . ' authentication token from PSL', PsCheckoutSessionException::UNABLE_TO_RETRIEVE_TOKEN);
+        }
+
+        // Set token expiration date to server timezone
+        $authToken = $response['body'];
+        $timezone = date_timezone_get(date_create(date('Y-m-d H:i:s')));
+        $authToken['expires_at'] = date_format(date_timezone_set(date_create($authToken['expires_at']), $timezone), 'Y-m-d H:i:s');
+
+        return $authToken;
     }
 }

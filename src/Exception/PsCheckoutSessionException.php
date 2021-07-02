@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PrestashopCheckout\Exception;
 
 class PsCheckoutSessionException extends PsCheckoutException
 {
+    const UNABLE_TO_RETRIEVE_TOKEN = 0;
     const UNEXISTING_SESSION_TRANSITION = 1;
     const OPENED_SESSION_NOT_FOUND = 2;
     const FORBIDDEN_SESSION_TRANSITION = 3;
