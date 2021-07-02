@@ -174,10 +174,6 @@
         this.$store.dispatch('logOut').then(() => {
           this.$store.dispatch('unlink');
           this.$store.dispatch('psxOnboarding', false);
-          this.$store.dispatch({
-            type: 'closeOnboardingSession',
-            session: this.$store.state.session.onboarding
-          });
           this.sendTrack();
         });
       }
