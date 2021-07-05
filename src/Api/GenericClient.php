@@ -85,6 +85,18 @@ class GenericClient
     }
 
     /**
+     * Wrapper of method get from guzzle client
+     *
+     * @param array $options payload
+     *
+     * @return array return response or false if no response
+     */
+    protected function get(array $options = [])
+    {
+        return $this->call('get', $options);
+    }
+
+    /**
      * Wrapper of method patch from guzzle client
      *
      * @param array $options payload

@@ -80,7 +80,7 @@ class Onboarding extends PaymentClient
                 'X-Correlation-Id' => $openedOnboardingSession->getCorrelationId(),
                 'Session-Token' => $openedOnboardingSession->getAuthToken(),
             ],
-            'json' => $builder->presentPayload()->getJson(),
+            'json' => $builder->presentPayload()->getArray(),
         ]);
 
         // Retry with minimal payload when full payload failed

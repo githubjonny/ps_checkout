@@ -27,6 +27,10 @@ use PrestaShop\Module\PrestashopCheckout\Api\Payment\Client\PaymentClient;
  */
 class Webhook extends PaymentClient
 {
+    const CATEGORY = [
+        'SHOP' => 'SHOP'
+    ];
+
     /**
      * Tells if the webhook came from the PSL
      *
@@ -36,10 +40,24 @@ class Webhook extends PaymentClient
      */
     public function getShopSignature(array $payload)
     {
-        $this->setRoute('/payments/shop/verify_webhook_signature');
+        if ($payload['category'] === self::CATEGORY['SHOP']) {
+            /** @var \PrestaShop\Module\PrestashopCheckout\Session\Onboarding\OnboardingSessionManager */
+            $onboardingSessionManager = $this->module->getService('ps_checkout.session.onboarding.manager');
+            $openedOnboardingSession = $onboardingSessionManager->getOpened();
 
-        return $this->post([
-            'json' => $payload,
-        ]);
+            $this->setRoute("/shop-events/{$payload['resource']['shop']['account_id']}/verify");
+            return $this->get([
+                'headers' => [
+                    'X-Correlation-Id' => $openedOnboardingSession->getCorrelationId(),
+                    'Session-Token' => $openedOnboardingSession->getAuthToken(),
+                ],
+                'json' => $payload,
+            ]);
+        } else {
+            $this->setRoute('/payments/shop/verify_webhook_signature');
+            return $this->post([
+                'json' => $payload,
+            ]);
+        }
     }
 }

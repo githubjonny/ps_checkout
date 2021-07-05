@@ -25,7 +25,6 @@ use PrestaShop\Module\PrestashopCheckout\Dispatcher\MerchantDispatcher;
 use PrestaShop\Module\PrestashopCheckout\Dispatcher\OrderDispatcher;
 use PrestaShop\Module\PrestashopCheckout\Dispatcher\ShopDispatcher;
 use PrestaShop\Module\PrestashopCheckout\Exception\PsCheckoutException;
-use PrestaShop\Module\PrestashopCheckout\ShopUuidManager;
 use PrestaShop\Module\PrestashopCheckout\WebHookValidation;
 
 /**
@@ -83,7 +82,6 @@ class ps_checkoutDispatchWebHookModuleFrontController extends AbstractFrontContr
         try {
             $headerValues = $this->getHeaderValues();
             $validationValues = new WebHookValidation();
-            $validationValues->validateHeaderDatas($headerValues);
 
             $this->setAtributesHeaderValues($headerValues);
 
@@ -107,11 +105,6 @@ class ps_checkoutDispatchWebHookModuleFrontController extends AbstractFrontContr
 
             $this->setAtributesBodyValues($bodyValues);
 
-            // Check if have execution permissions
-            if (false === $this->checkExecutionPermissions()) {
-                return false;
-            }
-
             return $this->dispatchWebHook();
         } catch (Exception $exception) {
             $this->handleException($exception);
@@ -133,7 +126,7 @@ class ps_checkoutDispatchWebHookModuleFrontController extends AbstractFrontContr
         $response = (new Webhook($context->link))->getShopSignature($bodyValues);
 
         // data return false if no error
-        if (200 === $response['httpCode'] && 'VERIFIED' === $response['body']['message']) {
+        if (200 === $response['httpCode']) {
             return true;
         }
 
@@ -178,6 +171,7 @@ class ps_checkoutDispatchWebHookModuleFrontController extends AbstractFrontContr
      */
     private function setAtributesHeaderValues(array $headerValues)
     {
+        // TODO add a fallback ?? $this->getShopId(), ..., $this->getPsxId()
         $this->shopId = $headerValues['Shop-Id'];
         $this->merchantId = $headerValues['Merchant-Id'];
         $this->firebaseId = $headerValues['Psx-Id'];
@@ -190,31 +184,16 @@ class ps_checkoutDispatchWebHookModuleFrontController extends AbstractFrontContr
      */
     private function setAtributesBodyValues(array $bodyValues)
     {
+        $resource = $bodyValues['category'] === Webhook::CATEGORY['SHOP']
+            ? $bodyValues['resource']
+            : json_decode($bodyValues['resource'], true);
         $this->payload = [
-            'resource' => (array) json_decode($bodyValues['resource'], true),
+            'resource' =>  (array) $resource,
             'eventType' => (string) $bodyValues['eventType'],
             'category' => (string) $bodyValues['category'],
             'summary' => (string) $bodyValues['summary'],
             'orderId' => (string) $bodyValues['orderId'],
         ];
-    }
-
-    /**
-     * Check the IP whitelist and Shop, Merchant and Psx Ids
-     *
-     * @return bool
-     *
-     * @throws PsCheckoutException
-     */
-    private function checkExecutionPermissions()
-    {
-        $localShopId = (new ShopUuidManager())->getForShop((int) Context::getContext()->shop->id);
-
-        if ($this->shopId !== $localShopId) {
-            throw new PsCheckoutException('shopId wrong', PsCheckoutException::PSCHECKOUT_WEBHOOK_SHOP_ID_INVALID);
-        }
-
-        return true;
     }
 
     /**
@@ -234,7 +213,7 @@ class ps_checkoutDispatchWebHookModuleFrontController extends AbstractFrontContr
             ]
         );
 
-        if ('ShopNotificationMerchantShop' === $this->payload['category']) {
+        if (Webhook::CATEGORY['SHOP'] === $this->payload['category']) {
             return (new ShopDispatcher())->dispatchEventType($this->payload);
         }
 

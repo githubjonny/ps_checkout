@@ -40,7 +40,7 @@ class ShopDispatcher implements Dispatcher
     public function dispatchEventType($payload)
     {
         if (empty($payload['resource']['shop'])) {
-            throw new PsCheckoutException('Unable to found shop aggregate', PsCheckoutException::UNKNOWN);
+            throw new PsCheckoutException('Unable to find shop aggregate', PsCheckoutException::UNKNOWN);
         }
 
         /** @var \PrestaShop\Module\PrestashopCheckout\Session\Onboarding\OnboardingSessionManager $onboardingSessionManager */
