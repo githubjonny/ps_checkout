@@ -43,7 +43,7 @@ class Webhook extends PaymentClient
         if ($payload['category'] === self::CATEGORY['SHOP']) {
             /** @var \PrestaShop\Module\PrestashopCheckout\Session\Onboarding\OnboardingSessionManager */
             $onboardingSessionManager = $this->module->getService('ps_checkout.session.onboarding.manager');
-            $openedOnboardingSession = $onboardingSessionManager->getOpened();
+            $openedOnboardingSession = $onboardingSessionManager->getLatestOpenedSession();
 
             $this->setRoute("/shop-events/{$payload['resource']['shop']['account_id']}/verify");
             return $this->get([

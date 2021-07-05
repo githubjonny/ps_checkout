@@ -254,17 +254,6 @@ class AdminAjaxPrestashopCheckoutController extends ModuleAdminController
         );
     }
 
-    // /**
-    //  * AJAX: Retrieve the onboarding paypal link
-    //  */
-    // public function ajaxProcessGetOnboardingLink()
-    // {
-    //     // Generate a new onboarding link to lin a new merchant
-    //     $this->ajaxDie(
-    //         json_encode((new Onboarding($this->context->link))->getOnboardingLink())
-    //     );
-    // }
-
     /**
      * AJAX: Retrieve Reporting informations
      */
@@ -823,5 +812,17 @@ class AdminAjaxPrestashopCheckoutController extends ModuleAdminController
         $session = $onboardingStateHandler->handle();
 
         $this->ajaxDie(json_encode($session));
+    }
+
+    /**
+     * AJAX: Get opened onboarding session
+     */
+    public function ajaxProcessGetOpenedOnboardingSession()
+    {
+        /** @var PrestaShop\Module\PrestashopCheckout\Session\Onboarding\OnboardingSessionManager $onboardingSessionManager */
+        $onboardingSessionManager = $this->module->getService('ps_checkout.session.onboarding.manager');
+        $openedSession = $onboardingSessionManager->getOpened();
+
+        $this->ajaxDie(json_encode($openedSession));
     }
 }

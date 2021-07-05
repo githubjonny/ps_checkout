@@ -41,18 +41,6 @@ export default {
       return Promise.resolve(response);
     });
   },
-  // getOnboardingLink({ getters }) {
-  //   return ajax({
-  //     url: getters.adminController,
-  //     action: 'GetOnboardingLink'
-  //   }).then(response => {
-  //     if (response.status === false) {
-  //       throw response;
-  //     }
-  //
-  //     return Promise.resolve(response);
-  //   });
-  // },
   updatePaypalStatusSettings({ commit, getters }) {
     return ajax({
       url: getters.adminController,

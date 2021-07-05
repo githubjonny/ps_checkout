@@ -51,10 +51,19 @@ class ShopDispatcher implements Dispatcher
             throw new PsCheckoutSessionException('Unable to find an opened onboarding session', PsCheckoutSessionException::OPENED_SESSION_NOT_FOUND);
         }
 
-        $data = json_decode($openedSession->getData(), true);
-        $data['shop'] = $payload['resource']['shop'];
+        $data = json_decode($openedSession->getData());
+        $data->shop = [
+            'paypal_onboarding_url' => $payload['resource']['shop']['paypal']['onboard']['links'][1]['href']
+        ];
 
         $openedSession->setData(json_encode($data));
+
+        $this->module->getLogger()->debug(
+            'DispatchWebHook ignored',
+            [
+                'session' => $openedSession->toArray(true),
+            ]
+        );
 
         return (bool) $onboardingSessionManager->apply('create_shop', $openedSession->toArray(true));
     }

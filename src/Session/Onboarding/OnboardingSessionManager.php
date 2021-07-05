@@ -131,12 +131,12 @@ class OnboardingSessionManager extends SessionManager
             throw new PsCheckoutSessionException($genericErrorMsg . 'Unexisting session transition', PsCheckoutSessionException::UNEXISTING_SESSION_TRANSITION);
         }
 
-        if (!$this->getOpened()) {
+        if (!$this->getCurrentSession()) {
             throw new PsCheckoutSessionException($genericErrorMsg . 'Unable to find an opened session', PsCheckoutSessionException::OPENED_SESSION_NOT_FOUND);
         }
 
-        if ($this->getOpened()->getStatus() !== $nextTransition['from']) {
-            throw new PsCheckoutSessionException($genericErrorMsg . 'The session is not authorized to transit from ' . $this->getOpened()->getStatus() . ' to ' . $nextTransition['to'], PsCheckoutSessionException::FORBIDDEN_SESSION_TRANSITION);
+        if ($this->getCurrentSession()->getStatus() !== $nextTransition['from']) {
+            throw new PsCheckoutSessionException($genericErrorMsg . 'The session is not authorized to transit from ' . $this->getCurrentSession()->getStatus() . ' to ' . $nextTransition['to'], PsCheckoutSessionException::FORBIDDEN_SESSION_TRANSITION);
         }
 
         if ($updateIntersect !== $sortedUpdateConfiguration) {
@@ -159,7 +159,7 @@ class OnboardingSessionManager extends SessionManager
         $this->can($next, $update);
 
         $nextTransition = $this->transitions[$next];
-        $session = $this->getOpened();
+        $session = $this->getCurrentSession();
 
         foreach ($update as $updateKey => $updateValue) {
             foreach ($nextTransition['update'] as $updateConfigKey => $updateConfigValue) {
@@ -210,5 +210,15 @@ class OnboardingSessionManager extends SessionManager
         ];
 
         return $this->get($sessionData);
+    }
+
+    /**
+     * Get the opened session according to PrestaShop context
+     *
+     * @return \PrestaShop\Module\PrestashopCheckout\Session\Session|null
+     */
+    public function getCurrentSession()
+    {
+        return \Validate::isLoadedObject($this->context->employee) ? $this->getOpened() : $this->getLatestOpenedSession();
     }
 }

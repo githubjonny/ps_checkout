@@ -507,18 +507,6 @@
                 .dispatch({
                   type: 'onboard'
               });
-                // .then(response => {
-                //   let session = this.$store.state.session.onboarding;
-                //   session.data.shop = {};
-                //   session.data.shop.paypal_onboarding_url =
-                //     response.onboardingLink;
-                //
-                //   this.$store.dispatch({
-                //     type: 'transitOnboardingSession',
-                //     sessionAction: 'create_shop',
-                //     session: session
-                //   });
-                // });
               this.$store.dispatch('psxOnboarding', response.status);
               this.$router
                 .push('/authentication')

@@ -191,8 +191,8 @@ class ps_checkoutDispatchWebHookModuleFrontController extends AbstractFrontContr
             'resource' =>  (array) $resource,
             'eventType' => (string) $bodyValues['eventType'],
             'category' => (string) $bodyValues['category'],
-            'summary' => (string) $bodyValues['summary'],
-            'orderId' => (string) $bodyValues['orderId'],
+            'summary' => isset($bodyValues['summary']) ? (string) $bodyValues['summary'] : '',
+            'orderId' => isset($bodyValues['orderId']) ? (string) $bodyValues['orderId'] : '',
         ];
     }
 
@@ -312,6 +312,7 @@ class ps_checkoutDispatchWebHookModuleFrontController extends AbstractFrontContr
                 'firebaseId' => $this->firebaseId,
                 'payload' => $this->payload,
                 'exception' => $exception,
+                'trace' => $exception->getTraceAsString(),
             ]
         );
 
