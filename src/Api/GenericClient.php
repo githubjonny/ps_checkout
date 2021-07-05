@@ -136,13 +136,7 @@ class GenericClient
         }
 
         try {
-            // if ($method === 'patch') {
-            //     var_dump($method);
-            // }
             $response = $this->getClient()->$method($this->getRoute(), $options);
-            // if ($method === 'patch') {
-            //     var_dump($response);
-            // }
         } catch (RequestException $exception) {
             return $this->handleException(
                 new PsCheckoutException(
