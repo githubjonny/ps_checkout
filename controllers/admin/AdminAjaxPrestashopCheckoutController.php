@@ -821,8 +821,8 @@ class AdminAjaxPrestashopCheckoutController extends ModuleAdminController
     {
         /** @var PrestaShop\Module\PrestashopCheckout\Session\Onboarding\OnboardingSessionManager $onboardingSessionManager */
         $onboardingSessionManager = $this->module->getService('ps_checkout.session.onboarding.manager');
-        $openedSession = $onboardingSessionManager->getOpened();
-
+        $openedSession = $onboardingSessionManager->getOpened()->toArray();
+        
         $this->ajaxDie(json_encode($openedSession));
     }
 }

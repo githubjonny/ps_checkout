@@ -490,7 +490,10 @@
             form: {
               ...this.form,
               business_category: parseInt(this.form.business_category, 10),
-              business_sub_category: parseInt(this.form.business_sub_category, 10)
+              business_sub_category: parseInt(
+                this.form.business_sub_category,
+                10
+              )
             }
           })
           .then(response => {
@@ -503,10 +506,7 @@
                 sessionAction: 'collect_shop_data',
                 session: session
               });
-              this.$store
-                .dispatch({
-                  type: 'onboard'
-              });
+              this.$store.dispatch({ type: 'onboard' });
               this.$store.dispatch('psxOnboarding', response.status);
               this.$router
                 .push('/authentication')

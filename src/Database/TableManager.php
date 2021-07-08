@@ -121,8 +121,9 @@ class TableManager
      */
     public function dropTable()
     {
-        return true;
-        //return $this->db->execute('DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'pscheckout_cart`');
+        return $this->db->execute('DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'pscheckout_onboarding_session`') &&
+          $this->db->execute('DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'pscheckout_payment_session`') &&
+          $this->db->execute('DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'pscheckout_cart`');
     }
 
     /**

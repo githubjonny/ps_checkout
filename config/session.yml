@@ -19,7 +19,6 @@ onboarding:
         auth_token:
         created_at:
         updated_at:
-        closed_at:
         expires_at:
         is_sse_opened: false
         data:

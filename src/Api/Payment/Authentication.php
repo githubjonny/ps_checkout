@@ -47,6 +47,13 @@ class Authentication extends PaymentClient
         ]);
 
         if (!$response['status']) {
+            $this->module->getLogger()->error(
+                'Unable to retrieve token from PSL',
+                [
+                    'response' => $response,
+                ]
+            );
+
             throw new PsCheckoutSessionException('Unable to retrieve ' . $type . ' authentication token from PSL', PsCheckoutSessionException::UNABLE_TO_RETRIEVE_TOKEN);
         }
 

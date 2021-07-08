@@ -137,6 +137,25 @@
       paypalScript.setAttribute('id', 'paypal-js');
       paypalScript.setAttribute('async', 'true');
       document.head.appendChild(paypalScript);
+
+      setInterval(() => {
+        let onboardingSession = this.$store.state.session.onboarding;
+
+        console.log(onboardingSession);
+        if (
+          onboardingSession &&
+          onboardingSession.data &&
+          onboardingSession.data.form &&
+          (!onboardingSession.data.shop ||
+            !onboardingSession.data.shop.paypal_onboarding_url)
+        ) {
+          this.$store.dispatch('getOpenedOnboardingSession')
+            .then(response => {
+              console.log(response);
+            });
+          console.log('update');
+        }
+      }, 10000);
     },
     mounted() {
       const interval = setInterval(() => {

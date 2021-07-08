@@ -62,7 +62,7 @@ class PrestaShopContext
      */
     public function getShopId()
     {
-        return $this->context->shop->id;
+        return (int) $this->context->shop->id;
     }
 
     /**
@@ -75,6 +75,11 @@ class PrestaShopContext
         return $this->context->currency !== null ? $this->context->currency->iso_code : 'EUR';
     }
 
+    /**
+     * Get the current theme name from the context
+     *
+     * @return string
+     */
     public function getCurrentThemeName()
     {
         return $this->context->shop->theme_name;
@@ -87,6 +92,6 @@ class PrestaShopContext
      */
     public function getEmployeeId()
     {
-        return $this->context->employee->id;
+        return (int) $this->context->employee->id;
     }
 }

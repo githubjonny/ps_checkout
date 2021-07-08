@@ -69,26 +69,32 @@ class OnboardingSessionManager extends SessionManager
      * Open a merchant onboarding session
      *
      * @param object $data
-     * @param bool $isShopCreated Start an onboarding session with SHOP_CREATED status
      *
      * @return \PrestaShop\Module\PrestashopCheckout\Session\Session
+     *
+     * @throws \PrestaShop\Module\PrestashopCheckout\Exception\PsCheckoutSessionException
      */
-    public function openOnboarding($data, $isShopCreated = false)
+    public function openOnboarding($data)
     {
         $correlationId = Uuid::uuid4()->toString();
-        $paymentAuthentication = new Authentication(\Context::getContext()->link);
+        $paymentAuthentication = new Authentication($this->context->link);
         $authToken = $paymentAuthentication->getAuthToken('onboarding', $correlationId);
+        $createdAt = date('Y-m-d H:i:s');
         $sessionData = [
             'correlation_id' => $correlationId,
             'user_id' => (int) $this->context->employee->id,
             'shop_id' => (int) $this->context->shop->id,
             'is_closed' => false,
             'auth_token' => $authToken['token'],
-            'status' => $isShopCreated ? $this->states['SHOP_CREATED'] : $this->configuration['initial_state'],
+            'status' => $this->configuration['initial_state'],
+            'created_at' => $createdAt,
+            'updated_at' => $createdAt,
             'expires_at' => $authToken['expires_at'],
             'is_sse_opened' => false,
-            'data' => json_encode($data),
+            'data' => (array) $data,
         ];
+
+        $this->can('start', $sessionData);
 
         return $this->open($sessionData);
     }
@@ -125,21 +131,26 @@ class OnboardingSessionManager extends SessionManager
         $updateConfiguration = $nextTransition['update'];
         $updateIntersect = SessionHelper::recursiveArrayIntersectKey($update, $updateConfiguration);
         $sortedUpdateConfiguration = SessionHelper::sortMultidimensionalArray($updateConfiguration);
-        $genericErrorMsg = 'Unable to transit this session : ';
+        $action = $next === 'start' ? 'open' : 'transit';
+        $genericErrorMsg = 'Unable to ' . $action . ' this session : ';
 
         if (!$nextTransition) {
             throw new PsCheckoutSessionException($genericErrorMsg . 'Unexisting session transition', PsCheckoutSessionException::UNEXISTING_SESSION_TRANSITION);
         }
 
-        if (!$this->getCurrentSession()) {
-            throw new PsCheckoutSessionException($genericErrorMsg . 'Unable to find an opened session', PsCheckoutSessionException::OPENED_SESSION_NOT_FOUND);
-        }
+        // Exceptions only for transit actions
+        if ($action === 'transit') {
+            if (!$this->getCurrentSession()) {
+                throw new PsCheckoutSessionException($genericErrorMsg . 'Unable to find an opened session', PsCheckoutSessionException::OPENED_SESSION_NOT_FOUND);
+            }
 
-        if ($this->getCurrentSession()->getStatus() !== $nextTransition['from']) {
-            throw new PsCheckoutSessionException($genericErrorMsg . 'The session is not authorized to transit from ' . $this->getCurrentSession()->getStatus() . ' to ' . $nextTransition['to'], PsCheckoutSessionException::FORBIDDEN_SESSION_TRANSITION);
+            if ($this->getCurrentSession()->getStatus() !== $nextTransition['from']) {
+                throw new PsCheckoutSessionException($genericErrorMsg . 'The session is not authorized to transit from ' . $this->getCurrentSession()->getStatus() . ' to ' . $nextTransition['to'], PsCheckoutSessionException::FORBIDDEN_SESSION_TRANSITION);
+            }
         }
 
         if ($updateIntersect !== $sortedUpdateConfiguration) {
+            var_dump($updateIntersect);
             throw new PsCheckoutSessionException($genericErrorMsg . 'Missing expected update session parameters.', PsCheckoutSessionException::MISSING_EXPECTED_PARAMETERS);
         }
     }
@@ -152,7 +163,7 @@ class OnboardingSessionManager extends SessionManager
      *
      * @return \PrestaShop\Module\PrestashopCheckout\Session\Session
      *
-     * @throws \Exception
+     * @throws \PrestaShop\Module\PrestashopCheckout\Exception\PsCheckoutSessionException
      */
     public function apply($next, array $update)
     {

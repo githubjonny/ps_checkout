@@ -64,10 +64,16 @@ export default {
         session: JSON.stringify(payload.session)
       }
     }).then(response => {
-      // if (!response.status) {
-      //   throw response;
-      // }
+      commit(types.ONBOARDING_SESSION, response);
 
+      return Promise.resolve(response);
+    });
+  },
+  getOpenedOnboardingSession({ commit, getters }) {
+    return ajax({
+      url: getters.adminController,
+      action: 'GetOpenedOnboardingSession'
+    }).then(response => {
       commit(types.ONBOARDING_SESSION, response);
 
       return Promise.resolve(response);

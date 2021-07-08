@@ -49,9 +49,7 @@ class AbstractSessionRepository implements SessionRepositoryInterface
      */
     public function save(array $sessionData)
     {
-        $createdAt = date('Y-m-d H:i:s');
-        $data = isset($sessionData['data']) ? $sessionData['data'] : null;
-
+        $data = isset($sessionData['data']) ? json_encode($sessionData['data']) : null;
         $insertData = [
             'correlation_id' => pSQL($sessionData['correlation_id']),
             'user_id' => $sessionData['user_id'],
@@ -59,8 +57,8 @@ class AbstractSessionRepository implements SessionRepositoryInterface
             'is_closed' => $sessionData['is_closed'],
             'auth_token' => pSQL($sessionData['auth_token']),
             'status' => pSQL($sessionData['status']),
-            'created_at' => pSQL($createdAt),
-            'updated_at' => pSQL($createdAt),
+            'created_at' => pSQL($sessionData['created_at']),
+            'updated_at' => pSQL($sessionData['updated_at']),
             'closed_at' => null,
             'expires_at' => pSQL($sessionData['expires_at']),
             'is_sse_opened' => $sessionData['is_sse_opened'],
@@ -172,5 +170,10 @@ class AbstractSessionRepository implements SessionRepositoryInterface
         ];
 
         return $this->db->update($this->table, $data, $where, 1, true);
+    }
+
+    public function test()
+    {
+        return 'yo les gars';
     }
 }
