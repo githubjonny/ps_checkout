@@ -39,6 +39,12 @@ class ShopDispatcher implements Dispatcher
 
     public function dispatchEventType($payload)
     {
+        $this->module->getLogger()->debug(
+            'Payload',
+            [
+                'payload' => $payload,
+            ]
+        );
         if (empty($payload['resource']['shop'])) {
             throw new PsCheckoutException('Unable to find shop aggregate', PsCheckoutException::UNKNOWN);
         }
@@ -46,6 +52,9 @@ class ShopDispatcher implements Dispatcher
         /** @var \PrestaShop\Module\PrestashopCheckout\Session\Onboarding\OnboardingSessionManager $onboardingSessionManager */
         $onboardingSessionManager = $this->module->getService('ps_checkout.session.onboarding.manager');
         $openedSession = $onboardingSessionManager->getLatestOpenedSession();
+        /** @var \PrestaShop\Module\PrestashopCheckout\Session\SessionConfiguration $sessionConfiguration */
+        $sessionConfiguration = $this->module->getService('ps_checkout.session.configuration');
+        $onboardingSessionConfiguration = $sessionConfiguration->getOnboarding();
 
         if (!$openedSession) {
             throw new PsCheckoutSessionException('Unable to find an opened onboarding session', PsCheckoutSessionException::OPENED_SESSION_NOT_FOUND);
@@ -53,18 +62,24 @@ class ShopDispatcher implements Dispatcher
 
         $data = json_decode($openedSession->getData());
         $data->shop = [
-            'paypal_onboarding_url' => $payload['resource']['shop']['paypal']['onboard']['links'][1]['href']
+            'paypal_onboarding_url' => $payload['resource']['shop']['paypal']['onboard']['links'][1]['href'],
         ];
 
         $openedSession->setData(json_encode($data));
 
+        foreach ($onboardingSessionConfiguration['transitions'] as $key => $transition) {
+            if (isset($transition['from']) && $transition['from'] === $openedSession->getStatus()) {
+                $action = $key;
+            }
+        }
+
         $this->module->getLogger()->debug(
-            'DispatchWebHook ignored',
+            'Action',
             [
-                'session' => $openedSession->toArray(true),
+                'action' => $action,
             ]
         );
 
-        return (bool) $onboardingSessionManager->apply('create_shop', $openedSession->toArray(true));
+        return (bool) $onboardingSessionManager->apply($action, $openedSession->toArray(true));
     }
 }

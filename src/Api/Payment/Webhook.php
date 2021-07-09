@@ -28,7 +28,7 @@ use PrestaShop\Module\PrestashopCheckout\Api\Payment\Client\PaymentClient;
 class Webhook extends PaymentClient
 {
     const CATEGORY = [
-        'SHOP' => 'SHOP'
+        'SHOP' => 'SHOP',
     ];
 
     /**
@@ -55,6 +55,7 @@ class Webhook extends PaymentClient
             ]);
         } else {
             $this->setRoute('/payments/shop/verify_webhook_signature');
+
             return $this->post([
                 'json' => $payload,
             ]);

@@ -171,9 +171,4 @@ class AbstractSessionRepository implements SessionRepositoryInterface
 
         return $this->db->update($this->table, $data, $where, 1, true);
     }
-
-    public function test()
-    {
-        return 'yo les gars';
-    }
 }

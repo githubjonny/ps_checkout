@@ -188,7 +188,7 @@ class ps_checkoutDispatchWebHookModuleFrontController extends AbstractFrontContr
             ? $bodyValues['resource']
             : json_decode($bodyValues['resource'], true);
         $this->payload = [
-            'resource' =>  (array) $resource,
+            'resource' => (array) $resource,
             'eventType' => (string) $bodyValues['eventType'] ? $bodyValues['eventType'] : '',
             'category' => (string) $bodyValues['category'],
             'summary' => isset($bodyValues['summary']) ? (string) $bodyValues['summary'] : '',

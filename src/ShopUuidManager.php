@@ -34,7 +34,6 @@ class ShopUuidManager
      */
     public function getForShop($idShop)
     {
-        // var_dump($idShop);
         return \Configuration::get(
             'PS_CHECKOUT_SHOP_UUID_V4',
             null,
