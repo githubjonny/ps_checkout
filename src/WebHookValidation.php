@@ -39,10 +39,6 @@ class WebHookValidation
             throw new PsCheckoutException('Body can\'t be empty', PsCheckoutException::PSCHECKOUT_WEBHOOK_BODY_EMPTY);
         }
 
-        if (empty($payload['eventType'])) {
-            throw new PsCheckoutException('eventType can\'t be empty', PsCheckoutException::PSCHECKOUT_WEBHOOK_EVENT_TYPE_EMPTY);
-        }
-
         if (empty($payload['category'])) {
             throw new PsCheckoutException('category can\'t be empty', PsCheckoutException::PSCHECKOUT_WEBHOOK_CATEGORY_EMPTY);
         }

@@ -30,6 +30,9 @@ use Ramsey\Uuid\Uuid;
 
 class OnboardingSessionManager extends SessionManager
 {
+    // TODO export to outside enum
+    const SHOP_SESSION = 'shop';
+
     /**
      * @var \Context
      */
@@ -78,7 +81,7 @@ class OnboardingSessionManager extends SessionManager
     {
         $correlationId = Uuid::uuid4()->toString();
         $paymentAuthentication = new Authentication($this->context->link);
-        $authToken = $paymentAuthentication->getAuthToken('onboarding', $correlationId);
+        $authToken = $paymentAuthentication->getAuthToken(self::SHOP_SESSION, $correlationId);
         $createdAt = date('Y-m-d H:i:s');
         $sessionData = [
             'correlation_id' => $correlationId,
