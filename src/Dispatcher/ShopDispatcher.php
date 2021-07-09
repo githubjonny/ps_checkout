@@ -40,9 +40,10 @@ class ShopDispatcher implements Dispatcher
     public function dispatchEventType($payload)
     {
         $this->module->getLogger()->debug(
-            'Payload',
+            'Integrations',
             [
-                'payload' => $payload,
+                'shop' => $payload['resource']['shop'],
+                'integrations' => $payload['resource']['shop']['integrations'],
             ]
         );
         if (empty($payload['resource']['shop'])) {
@@ -61,15 +62,41 @@ class ShopDispatcher implements Dispatcher
         }
 
         $data = json_decode($openedSession->getData());
+        $payloadShop = $payload['resource']['shop'];
+        $payloadIntegrations = $payloadShop['integrations'];
         $data->shop = [
-            'paypal_onboarding_url' => $payload['resource']['shop']['paypal']['onboard']['links'][1]['href'],
+            'paypal_onboarding_url' => $payloadShop['paypal']['onboard']['links'][1]['href'],
+            'integrations' => isset($payloadIntegrations) ? $payloadIntegrations : null,
+            'permissions_granted' => isset($payloadIntegrations['has_granted_permissions']) ? $payloadIntegrations['has_granted_permissions'] : null,
+            'consent_status' => isset($payloadIntegrations['has_consented_credentials']) ? $payloadIntegrations['has_consented_credentials'] : null,
+            'risk_status' => isset($payloadIntegrations['risk_status']) ? $payloadIntegrations['risk_status'] : null,
+            'account_status' => isset($payloadIntegrations['account_status']) ? $payloadIntegrations['account_status'] : null,
+            'is_email_confirmed' => isset($payloadIntegrations['is_email_confirmed']) ? $payloadIntegrations['is_email_confirmed'] : null,
         ];
 
         $openedSession->setData(json_encode($data));
 
+        // TODO: Save PayPal configuration
+
+        $this->module->getLogger()->debug(
+            'Session and transitions',
+            [
+                'transitions' => $onboardingSessionConfiguration['transitions'],
+                'session' => $openedSession->toArray(),
+            ]
+        );
+
         foreach ($onboardingSessionConfiguration['transitions'] as $key => $transition) {
-            if (isset($transition['from']) && $transition['from'] === $openedSession->getStatus()) {
-                $action = $key;
+            if (isset($transition['from'])) {
+                if ($transition['from'] === $openedSession->getStatus()) {
+                    $action = $key;
+                } else if (is_array($transition['from'])) {
+                    foreach ($transition['from'] as $trans) {
+                        if ($trans === $openedSession->getStatus()) {
+                            $action = $key;
+                        }
+                    }
+                }
             }
         }
 

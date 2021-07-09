@@ -147,7 +147,20 @@ class OnboardingSessionManager extends SessionManager
                 throw new PsCheckoutSessionException($genericErrorMsg . 'Unable to find an opened session', PsCheckoutSessionException::OPENED_SESSION_NOT_FOUND);
             }
 
-            if ($this->getCurrentSession()->getStatus() !== $nextTransition['from']) {
+            $authorizedTransition = false;
+
+            if (is_array($nextTransition['from'])) {
+                foreach ($nextTransition['from'] as $transition) {
+                    if ($this->getCurrentSession()->getStatus()  === $transition) {
+                        $authorizedTransition = true;
+                        break;
+                    }
+                }
+            } if ($this->getCurrentSession()->getStatus() === $nextTransition['from']) {
+                $authorizedTransition = true;
+            }
+
+            if (!$authorizedTransition) {
                 throw new PsCheckoutSessionException($genericErrorMsg . 'The session is not authorized to transit from ' . $this->getCurrentSession()->getStatus() . ' to ' . $nextTransition['to'], PsCheckoutSessionException::FORBIDDEN_SESSION_TRANSITION);
             }
         }

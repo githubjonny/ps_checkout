@@ -47,6 +47,7 @@ class AdminPaypalOnboardingPrestashopCheckoutController extends ModuleAdminContr
         $persistentConfiguration = $this->module->getService('ps_checkout.persistent.configuration');
 
         if ($persistentConfiguration->savePaypalAccount($paypalAccount)) {
+            var_dump($paypalAccount);
             // Update onboarding session
             /** @var \PrestaShop\Module\PrestashopCheckout\Session\Onboarding\OnboardingSessionManager $onboardingSessionManager */
             $onboardingSessionManager = $this->module->getService('ps_checkout.session.onboarding.manager');
