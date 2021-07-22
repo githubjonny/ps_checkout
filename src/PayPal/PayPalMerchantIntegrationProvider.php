@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PrestashopCheckout\PayPal;
 
+use Context;
 use PrestaShop\Module\PrestashopCheckout\Api\Payment\Shop;
 use Psr\SimpleCache\CacheInterface;
 
@@ -29,13 +30,18 @@ class PayPalMerchantIntegrationProvider
      * @var CacheInterface
      */
     private $cache;
+    /**
+     * @var Context
+     */
+    private $context;
 
     /**
      * @param CacheInterface $cache
      */
-    public function __construct(CacheInterface $cache)
+    public function __construct(CacheInterface $cache, Context $context)
     {
         $this->cache = $cache;
+        $this->context = $context;
     }
 
     /**
@@ -49,7 +55,7 @@ class PayPalMerchantIntegrationProvider
             return $this->cache->get($id);
         }
 
-        $response = (new Shop(\Context::getContext()->link))->getMerchantIntegration($id);
+        $response = (new Shop($this->context->link))->getMerchantIntegration($id);
 
         if (false === $response['status'] || empty($response['body']['merchant_integrations'])) {
             return false;

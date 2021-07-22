@@ -82,6 +82,10 @@ class ContextModule implements PresenterInterface
      * @var ShopProvider
      */
     private $shopProvider;
+    /**
+     * @var ShopUuidManager
+     */
+    private $shopUuidManager;
 
     /**
      * @param string $moduleName
@@ -103,7 +107,8 @@ class ContextModule implements PresenterInterface
         ValueBanner $valueBanner,
         Translations $translations,
         ShopContext $shopContext,
-        ShopProvider $shopProvider
+        ShopProvider $shopProvider,
+        ShopUuidManager $shopUuidManager
     ) {
         $this->moduleName = $moduleName;
         $this->moduleKey = $moduleKey;
@@ -114,6 +119,7 @@ class ContextModule implements PresenterInterface
         $this->translations = $translations;
         $this->shopContext = $shopContext;
         $this->shopProvider = $shopProvider;
+        $this->shopUuidManager = $shopUuidManager;
     }
 
     /**
@@ -123,9 +129,8 @@ class ContextModule implements PresenterInterface
      */
     public function present()
     {
-        $shopId = (int) \Context::getContext()->shop->id;
-        $shopUuid = (new ShopUuidManager())->getForShop($shopId);
-
+        $shopId = $this->psContext->getShopId();
+        $shopUuid = $this->shopUuidManager->getForShop($shopId);
         $sseUrl = (new PsxEnv())->getPsxApiUrl() . 'webhooks/sse/onboarding/' . $shopUuid;
 
         return [

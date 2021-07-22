@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PrestashopCheckout\OnBoarding;
 
+use Context;
 use PrestaShop\Module\PrestashopCheckout\Api\Payment\Onboarding;
 use PrestaShop\Module\PrestashopCheckout\Configuration\PrestashopCheckoutConfiguration;
 use PrestaShop\Module\PrestashopCheckout\Session\Onboarding\OnboardingSessionManager;
@@ -45,6 +46,10 @@ class OnboardingStateHandler
      * @var \PrestaShop\Module\PrestashopCheckout\Session\Session|null
      */
     private $onboardingSession;
+    /**
+     * @var Context
+     */
+    private $context;
 
     /**
      * @param \PrestaShop\Module\PrestashopCheckout\Session\Onboarding\OnboardingSessionManager $onboardingSessionManager
@@ -54,11 +59,13 @@ class OnboardingStateHandler
     public function __construct(
         OnboardingSessionManager $onboardingSessionManager,
         OnboardingState $onboardingState,
-        PrestashopCheckoutConfiguration $psCheckoutConfiguration
+        PrestashopCheckoutConfiguration $psCheckoutConfiguration,
+        Context $context
     ) {
         $this->onboardingSessionManager = $onboardingSessionManager;
         $this->onboardingState = $onboardingState;
         $this->psCheckoutConfiguration = $psCheckoutConfiguration;
+        $this->context = $context;
     }
 
     /**
@@ -114,7 +121,7 @@ class OnboardingStateHandler
             $this->onboardingSession = $this->onboardingSessionManager->apply('collect_shop_data', $this->onboardingSession->toArray(true));
 
             // TODO : Remove this part after implement SSE + Full CQRS
-            $onboarding = new Onboarding(\Context::getContext()->link);
+            $onboarding = new Onboarding($this->context->link);
             $onboarding->onboard();
         }
     }
