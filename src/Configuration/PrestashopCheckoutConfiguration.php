@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PrestashopCheckout\Configuration;
 
 use PrestaShop\Module\PrestashopCheckout\Api\Firebase\Token;
 use PrestaShop\Module\PrestashopCheckout\Entity\PsAccount;
+use PrestaShop\Module\PrestashopCheckout\Repository\PsAccountRepository;
 
 class PrestashopCheckoutConfiguration
 {
@@ -29,24 +30,27 @@ class PrestashopCheckoutConfiguration
      * @var \PrestaShop\Module\PrestashopCheckout\Configuration\PrestaShopConfiguration
      */
     private $prestashopConfiguration;
+    /**
+     * @var PsAccountRepository
+     */
+    private $psAccountRepository;
 
     /**
      * @param PrestaShopConfiguration $prestashopConfiguration
      */
-    public function __construct(PrestaShopConfiguration $prestashopConfiguration)
+    public function __construct(PrestaShopConfiguration $prestashopConfiguration, PsAccountRepository $psAccountRepository)
     {
         $this->prestashopConfiguration = $prestashopConfiguration;
+        $this->psAccountRepository = $psAccountRepository;
     }
 
     public function getFirebase()
     {
-        $token = new Token();
-
         return [
-            'email' => $this->prestashopConfiguration->get(PsAccount::PS_PSX_FIREBASE_EMAIL),
-            'token' => $token->getToken(),
-            'accountId' => $this->prestashopConfiguration->get(PsAccount::PS_PSX_FIREBASE_LOCAL_ID),
-            'refreshToken' => $this->prestashopConfiguration->get(PsAccount::PS_PSX_FIREBASE_REFRESH_TOKEN),
+            'email' => $this->psAccountRepository->getEmail(),
+            'token' => $this->psAccountRepository->getIdToken(),
+            'accountId' => $this->psAccountRepository->getLocalId(),
+            'refreshToken' => $this->psAccountRepository->getRefreshToken(),
         ];
     }
 

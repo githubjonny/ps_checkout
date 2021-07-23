@@ -48,7 +48,7 @@
 
           <AccountStatusCheckout v-if="checkoutAccountStatus" class="mr-3" />
 
-          <div class="text-center float-right" v-if="!checkoutAccountStatus">
+          <div class="text-center float-right" v-if="!checkoutAccountStatus && loginWithPsCheckoutAvailable">
             <a
               id="go-to-signin-link"
               href="#"
@@ -57,18 +57,9 @@
             >
               <b>{{ $t('panel.accounts.checkout.logIn') }}</b>
             </a>
-
-            <a
-              id="go-to-signup-link"
-              href="#"
-              @click.prevent="goToSignUp()"
-              class="btn btn-primary-reverse btn-outline-primary light-button mb-1"
-            >
-              {{ $t('panel.accounts.checkout.createAccount') }}
-            </a>
           </div>
 
-          <div class="text-right" v-else>
+          <div class="text-right" v-else-if="checkoutAccountStatus && loggedInWithPsCheckoutAccount">
             <b-button
               v-if="!isReady"
               id="psx-logout-button"
@@ -79,6 +70,19 @@
             >
               {{ $t('panel.accounts.checkout.logOut') }}
             </b-button>
+          </div>
+
+          <div class="text-center float-right" v-else-if="!loggedInWithPsAccountsAccount">
+            <a
+              v-if="isPsAccountsEnabled"
+              :href="configurePsAccountsURL"
+              class="mr-4"
+            >
+              <b>{{ $t('panel.accounts.checkout.configurePsAccounts') }}</b>
+            </a>
+            <span v-else>
+              {{ $t('panel.accounts.checkout.enablePsAccounts') }}
+            </span>
           </div>
 
           <!-- modal -->
@@ -167,18 +171,15 @@
       },
       isPsAccountsEnabled() {
         return this.$store.state.onboarding.psAccountsEnabled;
+      },
+      loginWithPsCheckoutAvailable() {
+        return this.$store.state.onboarding.loginWithPsCheckoutAvailable;
       }
     },
     methods: {
       goToSignIn() {
         this.$router
           .push('/authentication/signin')
-          // eslint-disable-next-line no-console
-          .catch(exception => console.log(exception));
-      },
-      goToSignUp() {
-        this.$router
-          .push('/authentication/signup')
           // eslint-disable-next-line no-console
           .catch(exception => console.log(exception));
       },
