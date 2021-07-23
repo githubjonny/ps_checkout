@@ -72,13 +72,14 @@
             </b-button>
           </div>
 
-          <div class="text-center float-right" v-else-if="!loggedInWithPsAccountsAccount">
-            <a
-              v-if="isPsAccountsEnabled"
-              :href="configurePsAccountsURL"
-              class="mr-4"
-            >
-              <b>{{ $t('panel.accounts.checkout.configurePsAccounts') }}</b>
+          <div
+            class="text-center float-right"
+            v-else-if="!loggedInWithPsAccountsAccount"
+          >
+            <a :href="configurePsAccountsURL" v-if="!isReady">
+              <b-button variant="outline-secondary">
+                {{ $t('panel.accounts.checkout.configurePsAccounts') }}
+              </b-button>
             </a>
             <span v-else>
               {{ $t('panel.accounts.checkout.enablePsAccounts') }}
