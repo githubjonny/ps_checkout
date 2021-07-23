@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\PrestashopCheckout\Configuration;
 
-use PrestaShop\Module\PrestashopCheckout\Api\Firebase\Token;
 use PrestaShop\Module\PrestashopCheckout\Entity\PsAccount;
 use PrestaShop\Module\PrestashopCheckout\Repository\PsAccountRepository;
 
