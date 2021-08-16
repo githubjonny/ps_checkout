@@ -59,7 +59,7 @@
             </a>
           </div>
 
-          <div class="text-right" v-else-if="checkoutAccountStatus && loggedInWithPsCheckoutAccount">
+          <div class="text-right" v-else-if="checkoutAccountStatus && loginWithPsCheckoutAvailable">
             <b-button
               v-if="!isReady"
               id="psx-logout-button"
