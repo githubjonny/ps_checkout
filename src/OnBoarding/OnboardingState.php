@@ -52,8 +52,8 @@ class OnboardingState
      */
     public function isFirebaseOnboarded()
     {
-        return $this->onBoardingStatusHelper->isPsCheckoutOnboarded()
-            || $this->onBoardingStatusHelper->isPsAccountsOnboarded();
+        return $this->onBoardingStatusHelper->isPsCheckoutLoginAllowed() && $this->onBoardingStatusHelper->isPsCheckoutOnboarded()
+            || !$this->onBoardingStatusHelper->isPsCheckoutLoginAllowed() && $this->onBoardingStatusHelper->isPsAccountsOnboarded();
     }
 
     /**
