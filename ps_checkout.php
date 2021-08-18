@@ -884,13 +884,15 @@ class Ps_checkout extends PaymentModule
         $shopContext = $this->getService('ps_checkout.context.shop');
         /** @var \PrestaShop\Module\PrestashopCheckout\Presenter\Store\Modules\ContextModule $moduleContext */
         $moduleContext = $this->getService('ps_checkout.store.module.context');
+        /** @var \PrestaShop\Module\PrestashopCheckout\Adapter\LinkAdapter $linkAdapter */
+        $linkAdapter = $this->getService('ps_checkout.adapter.link');
         $isShop17 = $shopContext->isShop17();
         $isFullyOnboarded = $psAccount->onBoardingIsCompleted() && $paypalAccount->onBoardingIsCompleted();
 
         if ('AdminPayment' === Tools::getValue('controller') && $isShop17) { // Display on PrestaShop 1.7.x.x only
             $params = [
                 'imgPath' => $this->_path . 'views/img/',
-                'configureLink' => (new PrestaShop\Module\PrestashopCheckout\Adapter\LinkAdapter($this->context->link))->getAdminLink(
+                'configureLink' => $linkAdapter->getAdminLink(
                     'AdminModules',
                     true,
                     [],
