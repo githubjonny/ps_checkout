@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PrestashopCheckout\Session\Onboarding;
 
+use Context;
 use PrestaShop\Module\PrestashopCheckout\Api\Payment\Authentication;
 use PrestaShop\Module\PrestashopCheckout\Configuration\PrestaShopConfiguration;
 use PrestaShop\Module\PrestashopCheckout\Exception\PsCheckoutSessionException;
@@ -29,7 +30,9 @@ use PrestaShop\Module\PrestashopCheckout\Session\Session;
 use PrestaShop\Module\PrestashopCheckout\Session\SessionConfiguration;
 use PrestaShop\Module\PrestashopCheckout\Session\SessionHelper;
 use PrestaShop\Module\PrestashopCheckout\Session\SessionManager;
+use Ps_checkout;
 use Ramsey\Uuid\Uuid;
+use Validate;
 
 class OnboardingSessionManager extends SessionManager
 {
@@ -37,7 +40,7 @@ class OnboardingSessionManager extends SessionManager
     const SHOP_SESSION = 'shop';
 
     /**
-     * @var \Context
+     * @var Context
      */
     private $context;
 
@@ -60,22 +63,32 @@ class OnboardingSessionManager extends SessionManager
      * @var string
      */
     private $mode;
+    /**
+     * @var Ps_checkout
+     */
+    private $module;
 
     /**
-     * @param \PrestaShop\Module\PrestashopCheckout\Session\Onboarding\OnboardingSessionRepository $repository
-     * @param \PrestaShop\Module\PrestashopCheckout\Session\SessionConfiguration $configuration
-     * @param \PrestaShop\Module\PrestashopCheckout\Configuration\PrestaShopConfiguration $prestashopConfiguration
+     * @param OnboardingSessionRepository $repository
+     * @param SessionConfiguration $configuration
+     * @param PrestaShopConfiguration $prestashopConfiguration
      *
      * @return void
      */
-    public function __construct(OnboardingSessionRepository $repository, SessionConfiguration $configuration, PrestaShopConfiguration $prestashopConfiguration)
-    {
+    public function __construct(
+        OnboardingSessionRepository $repository,
+        SessionConfiguration $configuration,
+        PrestaShopConfiguration $prestashopConfiguration,
+        Context $context,
+        Ps_checkout $module
+    ) {
         parent::__construct($repository);
-        $this->context = \Context::getContext();
         $this->configuration = $configuration->getOnboarding();
         $this->states = $this->configuration['states'];
         $this->transitions = $this->configuration['transitions'];
         $this->mode = Mode::LIVE === $prestashopConfiguration->get(PayPalConfiguration::PAYMENT_MODE) ? Mode::LIVE : Mode::SANDBOX;
+        $this->context = $context;
+        $this->module = $module;
     }
 
     /**
@@ -83,9 +96,9 @@ class OnboardingSessionManager extends SessionManager
      *
      * @param object $data
      *
-     * @return \PrestaShop\Module\PrestashopCheckout\Session\Session
+     * @return Session
      *
-     * @throws \PrestaShop\Module\PrestashopCheckout\Exception\PsCheckoutSessionException
+     * @throws PsCheckoutSessionException
      */
     public function openOnboarding($data)
     {
@@ -116,7 +129,7 @@ class OnboardingSessionManager extends SessionManager
     /**
      * Get an opened merchant onboarding session
      *
-     * @return \PrestaShop\Module\PrestashopCheckout\Session\Session|null
+     * @return Session|null
      */
     public function getOpened()
     {
@@ -138,7 +151,7 @@ class OnboardingSessionManager extends SessionManager
      *
      * @return void
      *
-     * @throws \PrestaShop\Module\PrestashopCheckout\Exception\PsCheckoutSessionException
+     * @throws PsCheckoutSessionException
      */
     public function can($next, array $update)
     {
@@ -148,12 +161,10 @@ class OnboardingSessionManager extends SessionManager
         $sortedUpdateConfiguration = SessionHelper::sortMultidimensionalArray($updateConfiguration);
         $action = $next === 'start' ? 'open' : 'transit';
         $genericErrorMsg = 'Unable to ' . $action . ' this session : ';
-        /** @var \Ps_checkout $module */
-        $module = \Module::getInstanceByName('ps_checkout');
 
         if (!$nextTransition) {
             $exception = new PsCheckoutSessionException($genericErrorMsg . 'Unexisting session transition', PsCheckoutSessionException::UNEXISTING_SESSION_TRANSITION);
-            $module->getLogger()->error('Unexisting session transition', ['exception' => $exception, 'trace' => $exception->getTraceAsString()]);
+            $this->module->getLogger()->error('Unexisting session transition', ['exception' => $exception, 'trace' => $exception->getTraceAsString()]);
             throw $exception;
         }
 
@@ -161,7 +172,7 @@ class OnboardingSessionManager extends SessionManager
         if ($action === 'transit') {
             if (!$this->getCurrentSession()) {
                 $exception = new PsCheckoutSessionException($genericErrorMsg . 'Unable to find an opened session', PsCheckoutSessionException::OPENED_SESSION_NOT_FOUND);
-                $module->getLogger()->error('Unable to find an opened session', ['exception' => $exception, 'trace' => $exception->getTraceAsString()]);
+                $this->module->getLogger()->error('Unable to find an opened session', ['exception' => $exception, 'trace' => $exception->getTraceAsString()]);
                 throw $exception;
             }
 
@@ -181,14 +192,14 @@ class OnboardingSessionManager extends SessionManager
 
             if (!$authorizedTransition) {
                 $exception = new PsCheckoutSessionException($genericErrorMsg . 'The session is not authorized to transit from ' . $this->getCurrentSession()->getStatus() . ' to ' . $nextTransition['to'], PsCheckoutSessionException::FORBIDDEN_SESSION_TRANSITION);
-                $module->getLogger()->error('The session transition is not authorized', ['from' => $this->getCurrentSession()->getStatus(), 'to' => $nextTransition['to'], 'exception' => $exception, 'trace' => $exception->getTraceAsString()]);
+                $this->module->getLogger()->error('The session transition is not authorized', ['from' => $this->getCurrentSession()->getStatus(), 'to' => $nextTransition['to'], 'exception' => $exception, 'trace' => $exception->getTraceAsString()]);
                 throw $exception;
             }
         }
 
         if ($updateIntersect !== $sortedUpdateConfiguration) {
             $exception = new PsCheckoutSessionException($genericErrorMsg . 'Missing expected update session parameters.', PsCheckoutSessionException::MISSING_EXPECTED_PARAMETERS);
-            $module->getLogger()->error($exception->getMessage(), ['update' => $update, 'updateIntersect' => $updateIntersect, 'sortedUpdateConfiguration' => $sortedUpdateConfiguration, 'exception' => $exception, 'trace' => $exception->getTraceAsString()]);
+            $this->module->getLogger()->error($exception->getMessage(), ['update' => $update, 'updateIntersect' => $updateIntersect, 'sortedUpdateConfiguration' => $sortedUpdateConfiguration, 'exception' => $exception, 'trace' => $exception->getTraceAsString()]);
             throw $exception;
         }
     }
@@ -199,9 +210,9 @@ class OnboardingSessionManager extends SessionManager
      * @param string $next Next state to transit
      * @param array $update Session data to update
      *
-     * @return \PrestaShop\Module\PrestashopCheckout\Session\Session
+     * @return Session
      *
-     * @throws \PrestaShop\Module\PrestashopCheckout\Exception\PsCheckoutSessionException
+     * @throws PsCheckoutSessionException
      */
     public function apply($next, array $update)
     {
@@ -237,7 +248,7 @@ class OnboardingSessionManager extends SessionManager
     /**
      * Close a merchant onboarding session
      *
-     * @param \PrestaShop\Module\PrestashopCheckout\Session\Session $session
+     * @param Session $session
      *
      * @return bool
      */
@@ -249,7 +260,7 @@ class OnboardingSessionManager extends SessionManager
     /**
      * Get latest opened onboarding session for webhooks
      *
-     * @return \PrestaShop\Module\PrestashopCheckout\Session\Session|null
+     * @return Session|null
      */
     public function getLatestOpenedSession()
     {
@@ -265,10 +276,10 @@ class OnboardingSessionManager extends SessionManager
     /**
      * Get the opened session according to PrestaShop context
      *
-     * @return \PrestaShop\Module\PrestashopCheckout\Session\Session|null
+     * @return Session|null
      */
     public function getCurrentSession()
     {
-        return \Validate::isLoadedObject($this->context->employee) ? $this->getOpened() : $this->getLatestOpenedSession();
+        return Validate::isLoadedObject($this->context->employee) ? $this->getOpened() : $this->getLatestOpenedSession();
     }
 }

@@ -57,6 +57,7 @@ class PaymentClient extends GenericClient
         $this->setLink($link);
 
         $this->psAccountRepository = $this->module->getService('ps_checkout.repository.prestashop.account');
+        $this->shopUuid = $this->psAccountRepository->getShopUuid();
         $token = $this->psAccountRepository->getIdToken();
 
         // Client can be provided for tests
