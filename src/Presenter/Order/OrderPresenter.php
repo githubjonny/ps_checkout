@@ -54,6 +54,9 @@ class OrderPresenter
             'intent' => $this->orderPayPal['intent'],
             'status' => $this->getOrderStatus(),
             'transactions' => $this->getTransactions(),
+            'total' => '123',
+            'balance' => '123',
+            'payment_mode' => 'CARD',
         ];
     }
 
