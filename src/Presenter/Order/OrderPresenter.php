@@ -54,9 +54,9 @@ class OrderPresenter
             'intent' => $this->orderPayPal['intent'],
             'status' => $this->getOrderStatus(),
             'transactions' => $this->getTransactions(),
-            'total' => '123',
-            'balance' => '123',
-            'payment_mode' => 'CARD',
+            'total' => $this->getTotal(),
+            'balance' => $this->getBalance(),
+            'payment_mode' => 'PayPal',
         ];
     }
 
@@ -130,6 +130,9 @@ class OrderPresenter
                         'date' => (new DatePresenter($refund['create_time'], 'Y-m-d H:i:s'))->present(),
                         'isRefundable' => false,
                         'maxAmountRefundable' => 0,
+                        'gross_amount' => $refund['seller_payable_breakdown']['gross_amount']['value'],
+                        'paypal_fee' => $refund['seller_payable_breakdown']['paypal_fee']['value'],
+                        'net_amount' => $refund['seller_payable_breakdown']['net_amount']['value'],
                     ];
                 }
             }
@@ -146,6 +149,9 @@ class OrderPresenter
                         'date' => (new DatePresenter($payment['create_time'], 'Y-m-d H:i:s'))->present(),
                         'isRefundable' => in_array($payment['status'], ['COMPLETED', 'PARTIALLY_REFUNDED']),
                         'maxAmountRefundable' => $maxAmountRefundable > 0 ? $maxAmountRefundable : 0,
+                        'gross_amount' => $payment['seller_receivable_breakdown']['gross_amount']['value'],
+                        'paypal_fee' => $payment['seller_receivable_breakdown']['paypal_fee']['value'],
+                        'net_amount' => $payment['seller_receivable_breakdown']['net_amount']['value'],
                     ];
                 }
             }
@@ -227,5 +233,31 @@ class OrderPresenter
             'translated' => $translated,
             'class' => $class,
         ];
+    }
+
+    private function getTotal()
+    {
+        if (empty($this->orderPayPal['purchase_units'])) {
+            return [];
+        }
+
+        $total = 0.0;
+        $currency = '';
+
+        foreach ($this->orderPayPal['purchase_units'] as $purchase) {
+            if (empty($purchase['payments'])) {
+                continue;
+            }
+
+            $total += (float) $purchase['amount']['value'];
+            $currency = $purchase['amount']['currency_code'];
+        }
+
+        return number_format($total, 2) . " $currency";
+    }
+
+    private function getBalance()
+    {
+        return 10;
     }
 }

@@ -204,60 +204,66 @@
 
     <div class="tabs">
       <div role="tablist" aria-label="Transactions">
-        {foreach $orderPayPal.transactions as $key => $orderPayPalTransaction}
+        {assign var="counter" value=1}
+        {foreach $orderPayPal.transactions as $orderPayPalTransaction}
           <button
             role="tab"
-            aria-selected="{if $key eq 0}true{else}false{/if}"
+            aria-selected="{if $counter eq 1}true{else}false{/if}"
             aria-controls="{$orderPayPalTransaction.id}-tab"
             class="tab"
           >
             <strong class="tab__btn-title"> {$orderPayPalTransaction.type.translated|escape:'html':'UTF-8'} </strong>
             <span class="tab__btn-infos">
                 <span class="tab__btn-time">{dateFormat date=$orderPayPalTransaction.date full=true}</span>
-                <strong class="tab__btn-amount">{$orderPayPalTransaction.amount|escape:'html':'UTF-8'} {$orderPayPalTransaction.currency|escape:'html':'UTF-8'}</strong>
+                <strong class="tab__btn-amount">
+                    {$orderPayPalTransaction.amount|escape:'html':'UTF-8'} {$orderPayPalTransaction.currency|escape:'html':'UTF-8'}
+                </strong>
               </span>
           </button>
+          {assign var="counter" value=$counter+1}
         {/foreach}
       </div>
 
       <div class="tabpanel-wrapper">
-        {foreach $orderPayPal.transactions as $key => $orderPayPalTransaction}
-        <div
-          tabindex="0"
-          role="tabpanel"
-          id="{$orderPayPalTransaction.id}-tab"
-          aria-labelledby="first"
-          class="tabpanel"
-          {if $key neq 0}hidden="hidden"{/if}
-        >
-          <div>
+        {assign var="counter" value=1}
+        {foreach $orderPayPal.transactions as $orderPayPalTransaction}
+          <div
+            tabindex="0"
+            role="tabpanel"
+            id="{$orderPayPalTransaction.id}-tab"
+            aria-labelledby="first"
+            class="tabpanel"
+            {if $counter neq 1}hidden="hidden"{/if}
+          >
             <div>
-              <h3 class="tabpanel__title">{l s='Transaction details' mod='ps_checkout'}</h3>
-              <dl class="tabpanel__infos">
-                <dt>{l s='Reference' mod='ps_checkout'}</dt>
-                <dd>{$orderPayPalTransaction.id}</dd>
-                <dt>{l s='Status' mod='ps_checkout'}</dt>
-                <dd>{$orderPayPalTransaction.status.translated}</dd>
-                <dt>{l s='Amount (Tax incl.)' mod='ps_checkout'}</dt>
-                <dd>{$orderPayPalTransaction.amount} {$orderPayPalTransaction.currency}</dd>
-              </dl>
+              <div>
+                <h3 class="tabpanel__title">{l s='Transaction details' mod='ps_checkout'}</h3>
+                <dl class="tabpanel__infos">
+                  <dt>{l s='Reference' mod='ps_checkout'}</dt>
+                  <dd>{$orderPayPalTransaction.id}</dd>
+                  <dt>{l s='Status' mod='ps_checkout'}</dt>
+                  <dd>{$orderPayPalTransaction.status.translated}</dd>
+                  <dt>{l s='Amount (Tax incl.)' mod='ps_checkout'}</dt>
+                  <dd>{$orderPayPalTransaction.amount} {$orderPayPalTransaction.currency}</dd>
+                </dl>
+              </div>
+              <div>
+                <h3 class="tabpanel__title">Transaction amounts</h3>
+                <dl class="tabpanel__infos">
+                  <dt>{l s='Gross amount' mod='ps_checkout'}</dt>
+                  <dd>{$orderPayPalTransaction.gross_amount} {$orderPayPalTransaction.currency}</dd>
+                  <dt>{l s='Fees (Tax Incl.)' mod='ps_checkout'}</dt>
+                  <dd>- {$orderPayPalTransaction.paypal_fee} {$orderPayPalTransaction.currency}</dd>
+                  <dt>{l s='Net amount' mod='ps_checkout'}</dt>
+                  <dd>{$orderPayPalTransaction.net_amount} {$orderPayPalTransaction.currency}</dd>
+                </dl>
+              </div>
+              <a href="https://www.paypal.com/activity/payment/{$orderPayPalTransaction.id|escape:'html':'UTF-8'}" target="_blank" class="tabpanel__cta">
+                {l s='See on PayPal' mod='ps_checkout'}
+              </a>
             </div>
-            <div>
-              <h3 class="tabpanel__title">Transaction amounts</h3>
-              <dl class="tabpanel__infos">
-                <dt>{l s='Gross amount' mod='ps_checkout'}</dt>
-                <dd>€125,00</dd>
-                <dt>{l s='Fees (Tax Incl.)' mod='ps_checkout'}</dt>
-                <dd>- €15,00</dd>
-                <dt>{l s='Net amount' mod='ps_checkout'}</dt>
-                <dd>€110,00</dd>
-              </dl>
-            </div>
-            <a href="https://www.paypal.com/activity/payment/{$orderPayPalTransaction.id|escape:'html':'UTF-8'}" target="_blank" class="tabpanel__cta">
-              {l s='See on PayPal' mod='ps_checkout'}
-            </a>
           </div>
-        </div>
+          {assign var="counter" value=$counter+1}
         {/foreach}
       </div>
     </div>
@@ -345,15 +351,16 @@
     color: #555555;
     border-bottom: 2px solid #e5ebf3;
     border-left: 2px solid #e5ebf3;
+    cursor: pointer;
+  }
+  .tab:focus{
+    outline: none;
   }
   .tab[aria-selected="true"] {
     border-right: 2px solid #fff;
     margin-right: -2px;
     position: relative;
     z-index: 2;
-  }
-  .tab {
-    cursor: pointer;
   }
   .tab__btn-title {
     display: block;
