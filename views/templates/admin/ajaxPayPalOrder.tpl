@@ -180,7 +180,10 @@
         </dd>
         <dt data-grid-area="total">{l s='Total' mod='ps_checkout'}</dt>
         <dd>{$orderPayPal.total}</dd>
-        <dt data-grid-area="balance">{l s='Balance' mod='ps_checkout'} <i></i></dt>
+        <dt data-grid-area="balance">
+          {l s='Balance' mod='ps_checkout'}
+          <i class="balance-info-icon" title="{l s='Total amount you will receive on your bank account: the order amount, minus transaction fees, minus potential refunds' mod='ps_checkout'}"></i>
+        </dt>
         <dd>{$orderPayPal.balance}</dd>
         <dt data-grid-area="payment">{l s='Payment mode' mod='ps_checkout'}</dt>
         <dd>{$orderPayPal.payment_mode}</dd>
@@ -282,27 +285,27 @@
   }
 </style>
 <style>
-  .panel-wrapper {
+  #ps_checkout .panel-wrapper {
     flex-grow: 1;
     padding: 18px 14px;
     border: 2px solid #e4ebf3;
     margin-bottom: 10px;
   }
-  .panel {
+  #ps_checkout .panel {
     background: none;
     box-shadow: none;
     text-align: left;
     color: #555555;
     position: relative;
   }
-  .panel__title, .tabpanel__title {
+  #ps_checkout .panel__title, #ps_checkout .tabpanel__title {
     display: block;
     color: #878787;
     margin: 0;
     padding-bottom: 8px;
     border-bottom: 1px solid #eeeeee;
   }
-  .panel__infos {
+  #ps_checkout .panel__infos {
     margin-top: 16px;
     margin-bottom: 0;
     padding-bottom: 16px;
@@ -311,24 +314,24 @@
     grid-column-gap: 16px;
     grid-row-gap: 8px;
   }
-  .panel__infos dd {
+  #ps_checkout .panel__infos dd {
     font-weight: 400;
     text-align: right;
   }
-  .panel__cta {
+  #ps_checkout .panel__cta {
     text-align: center;
   }
-  .panel__cta a {
+  #ps_checkout .panel__cta a {
     font-weight: 600;
     color: #555;
     text-decoration: underline;
     text-align: center;
     display: inline-block;
   }
-  .select-wrapper {
+  #ps_checkout .select-wrapper {
     margin-bottom: 1.5em;
   }
-  .select-wrapper__select {
+  #ps_checkout .select-wrapper__select {
     width: 100%;
     background-color: #fff;
     border: 1px solid #B3C7CD;
@@ -336,12 +339,12 @@
     color: #363A41;
     padding: 0.5em;
   }
-  .tabs {
+  #ps_checkout .tabs {
     color: #555555;
     position: relative;
     border: 2px solid #e5ebf3;
   }
-  [role="tablist"] {
+  #ps_checkout [role="tablist"] {
     position: absolute;
     top: 0;
     left: 0;
@@ -350,7 +353,7 @@
     overflow-y: scroll;
     overflow-x: hidden;
   }
-  .tab {
+  #ps_checkout .tab {
     border: none;
     background: none;
     box-shadow: none;
@@ -361,34 +364,34 @@
     border-right: 2px solid #e5ebf3;
     cursor: pointer;
   }
-  .tab:last-child {
+  #ps_checkout .tab:last-child {
     border-bottom: none;
   }
-  .tab:focus{
+  #ps_checkout .tab:focus{
     outline: none;
   }
-  .tab[aria-selected="true"] {
+  #ps_checkout .tab[aria-selected="true"] {
     border-right: 2px solid #fff;
     margin-right: -2px;
     position: relative;
     z-index: 2;
   }
-  .tab__btn-title {
+  #ps_checkout .tab__btn-title {
     display: block;
     margin-bottom: 8px;
   }
-  .tab__btn-infos {
+  #ps_checkout .tab__btn-infos {
     display: flex;
     justify-content: space-between;
   }
-  .tabpanel-wrapper {
+  #ps_checkout .tabpanel-wrapper {
     flex-grow: 1;
     padding: 18px 14px;
   }
-  .tabpanel {
+  #ps_checkout .tabpanel {
     position: relative;
   }
-  .tabpanel__infos {
+  #ps_checkout .tabpanel__infos {
     margin-top: 16px;
     margin-bottom: 0;
     padding-bottom: 16px;
@@ -400,18 +403,18 @@
   .tabpanel__infos + .tabpanel__infos {
     padding-bottom: 0;
   }
-  .tabpanel__infos dd {
+  #ps_checkout .tabpanel__infos dd {
     font-weight: 700;
     text-align: right;
   }
-  .tabpanel__cta {
+  #ps_checkout .tabpanel__cta {
     font-weight: 600;
     color: #555;
     text-decoration: underline;
     text-align: center;
     display: block;
   }
-  .tabpanel__cta:after {
+  #ps_checkout .tabpanel__cta:after {
     content: '';
     display: inline-block;
     vertical-align: middle;
@@ -423,68 +426,68 @@
     background-size: contain;
   }
   @media screen and (min-width: 780px) {
-    .panel__cta {
+    #ps_checkout .panel__cta {
       position: absolute;
       top: 0;
       right: 0;
     }
-    .panel__infos dd {
+    #ps_checkout .panel__infos dd {
       text-align: left;
     }
-    .select-wrapper {
+    #ps_checkout .select-wrapper {
       display: none;
     }
-    .tabs {
+    #ps_checkout .tabs {
       display: flex;
       padding-left: 244px;
     }
-    [role="tablist"] {
+    #ps_checkout [role="tablist"] {
       display: flex;
       flex-direction: column;
       width: 244px;
       flex-shrink: 0;
     }
-    .panel__infos {
+    #ps_checkout .panel__infos {
       grid-template-columns: max-content;
       grid-template-areas:
             "reference referenceValue total totalValue payment paymentValue"
             "status statusValue balance balanceValue empty empty";
     }
-    [data-grid-area="reference"] {
+    #ps_checkout [data-grid-area="reference"] {
       grid-area: reference;
     }
-    [data-grid-area="reference"] + dd {
+    #ps_checkout [data-grid-area="reference"] + dd {
       grid-area: referenceValue;
     }
-    [data-grid-area="total"] {
+    #ps_checkout [data-grid-area="total"] {
       grid-area: total;
     }
-    [data-grid-area="total"] + dd {
+    #ps_checkout [data-grid-area="total"] + dd {
       grid-area: totalValue;
     }
-    [data-grid-area="payment"] {
+    #ps_checkout [data-grid-area="payment"] {
       grid-area: payment;
     }
-    [data-grid-area="payment"] + dd {
+    #ps_checkout [data-grid-area="payment"] + dd {
       grid-area: paymentValue;
     }
-    [data-grid-area="status"] {
+    #ps_checkout [data-grid-area="status"] {
       grid-area: status;
     }
-    [data-grid-area="status"] + dd {
+    #ps_checkout [data-grid-area="status"] + dd {
       grid-area: statusValue;
     }
-    [data-grid-area="balance"] {
+    #ps_checkout [data-grid-area="balance"] {
       grid-area: balance;
     }
-    [data-grid-area="balance"] + dd {
+    #ps_checkout [data-grid-area="balance"] + dd {
       grid-area: balanceValue;
     }
-    .tabpanel__infos dd {
+    #ps_checkout .tabpanel__infos dd {
       font-weight: 700;
       text-align: left;
     }
-    .tabpanel__cta {
+    #ps_checkout .tabpanel__cta {
       position: absolute;
       top: 0;
       right: 0;
@@ -504,5 +507,14 @@
   /*!* Handle on hover *!*/
   #ps_checkout [role="tablist"]::-webkit-scrollbar-thumb:hover {
     background: rgba(56, 56, 56, 0.33);
+  }
+
+  #ps_checkout .balance-info-icon:after {
+    font-style: normal;
+    font-family: "Material Icons";
+    content: "\E001";
+    display: inline-block;
+    vertical-align: middle;
+    color: #878787;
   }
 </style>

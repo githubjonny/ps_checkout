@@ -226,6 +226,35 @@ const {$} = window;
     }
   };
 
+  let PayPalTransactions = function()
+  {
+    this.initialize = function() {
+      $(document).on('click', '#ps_checkout button[role="tab"]', function () {
+        let tabIdentifier = $(this).attr('aria-controls');
+        switchDisplayedTab(tabIdentifier);
+        switchSelectDropdown(tabIdentifier);
+      });
+
+      $(document).on('change', '#ps_checkout select#select-order', function() {
+        let tabIdentifier = $(this).val();
+        switchDisplayedTab(tabIdentifier)
+      })
+
+      function switchDisplayedTab(tabIdentifier)
+      {
+        $(`#ps_checkout button[role="tab"][aria-controls="${tabIdentifier}"]`).attr('aria-selected', true);
+        $('#ps_checkout button[role="tab"]').not(`[aria-controls="${tabIdentifier}"]`).attr('aria-selected', false);
+        $('#ps_checkout div[role="tabpanel"]').not(`#${tabIdentifier}`).attr('hidden', 'hidden');
+        $(`#ps_checkout #${tabIdentifier}[role="tabpanel"]`).attr('hidden', false);
+      }
+
+      function switchSelectDropdown(tabIdentifier)
+      {
+        $('#ps_checkout select#select-transaction').val(tabIdentifier);
+      }
+    }
+  }
+
   /**
    * Initialize ps_checkout
    *
@@ -250,30 +279,8 @@ const {$} = window;
 
     let payPalOrderRefund = new PayPalOrderRefund(config);
     payPalOrderRefund.initialize();
+
+    let payPalTransactions = new PayPalTransactions();
+    payPalTransactions.initialize();
   };
-
-  $(document).on('click', '#ps_checkout button[role="tab"]', function () {
-    let tabIdentifier = $(this).attr('aria-controls');
-    switchDisplayedTab(tabIdentifier);
-    switchSelectDropdown(tabIdentifier);
-  });
-
-  $(document).on('change', '#ps_checkout select#select-order', function() {
-    let tabIdentifier = $(this).val();
-    switchDisplayedTab(tabIdentifier)
-  })
-
-  function switchDisplayedTab(tabIdentifier)
-  {
-    console.log(tabIdentifier);
-    $(`#ps_checkout button[role="tab"][aria-controls="${tabIdentifier}"]`).attr('aria-selected', true);
-    $('#ps_checkout button[role="tab"]').not(`[aria-controls="${tabIdentifier}"]`).attr('aria-selected', false);
-    $('#ps_checkout div[role="tabpanel"]').not(`#${tabIdentifier}`).attr('hidden', 'hidden');
-    $(`#ps_checkout #${tabIdentifier}[role="tabpanel"]`).attr('hidden', false);
-  }
-
-  function switchSelectDropdown(tabIdentifier)
-  {
-    $('#ps_checkout select#select-transaction').val(tabIdentifier);
-  }
 })();
