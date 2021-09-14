@@ -180,7 +180,7 @@
         </dd>
         <dt data-grid-area="total">{l s='Total' mod='ps_checkout'}</dt>
         <dd>{$orderPayPal.total}</dd>
-        <dt data-grid-area="balance">{l s='Balance' mod='ps_checkout'}</dt>
+        <dt data-grid-area="balance">{l s='Balance' mod='ps_checkout'} <i></i></dt>
         <dd>{$orderPayPal.balance}</dd>
         <dt data-grid-area="payment">{l s='Payment mode' mod='ps_checkout'}</dt>
         <dd>{$orderPayPal.payment_mode}</dd>
@@ -248,7 +248,7 @@
                 </dl>
               </div>
               <div>
-                <h3 class="tabpanel__title">Transaction amounts</h3>
+                <h3 class="tabpanel__title">{l s='Transaction amounts' mod='ps_checkout'}</h3>
                 <dl class="tabpanel__infos">
                   <dt>{l s='Gross amount' mod='ps_checkout'}</dt>
                   <dd>{$orderPayPalTransaction.gross_amount} {$orderPayPalTransaction.currency}</dd>
@@ -285,7 +285,7 @@
   .panel-wrapper {
     flex-grow: 1;
     padding: 18px 14px;
-    border: 2px solid #e5ebf3;
+    border: 2px solid #e4ebf3;
     margin-bottom: 10px;
   }
   .panel {
@@ -338,9 +338,17 @@
   }
   .tabs {
     color: #555555;
+    position: relative;
+    border: 2px solid #e5ebf3;
   }
   [role="tablist"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    max-height: 100%;
     display: none;
+    overflow-y: scroll;
+    overflow-x: hidden;
   }
   .tab {
     border: none;
@@ -350,8 +358,11 @@
     padding: 20px 14px;
     color: #555555;
     border-bottom: 2px solid #e5ebf3;
-    border-left: 2px solid #e5ebf3;
+    border-right: 2px solid #e5ebf3;
     cursor: pointer;
+  }
+  .tab:last-child {
+    border-bottom: none;
   }
   .tab:focus{
     outline: none;
@@ -373,7 +384,6 @@
   .tabpanel-wrapper {
     flex-grow: 1;
     padding: 18px 14px;
-    border: 2px solid #e5ebf3;
   }
   .tabpanel {
     position: relative;
@@ -426,11 +436,11 @@
     }
     .tabs {
       display: flex;
+      padding-left: 244px;
     }
     [role="tablist"] {
       display: flex;
       flex-direction: column;
-      border-top: 2px solid #e5ebf3;
       width: 244px;
       flex-shrink: 0;
     }
@@ -479,5 +489,20 @@
       top: 0;
       right: 0;
     }
+  }
+
+  /* width */
+  #ps_checkout [role="tablist"]::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  #ps_checkout [role="tablist"]::-webkit-scrollbar-thumb {
+    background: rgba(169, 169, 169, 0.15);
+    border-radius: 20px;
+  }
+
+  /*!* Handle on hover *!*/
+  #ps_checkout [role="tablist"]::-webkit-scrollbar-thumb:hover {
+    background: rgba(56, 56, 56, 0.33);
   }
 </style>

@@ -238,7 +238,7 @@ class OrderPresenter
     private function getTotal()
     {
         if (empty($this->orderPayPal['purchase_units'])) {
-            return [];
+            return '0';
         }
 
         $total = 0.0;
@@ -258,6 +258,34 @@ class OrderPresenter
 
     private function getBalance()
     {
-        return 10;
+        if (empty($this->orderPayPal['purchase_units'])) {
+            return '0';
+        }
+
+        $balance = 0.0;
+        $totalRefunded = 0.0;
+        $currency = '';
+
+        foreach ($this->orderPayPal['purchase_units'] as $purchase) {
+            if (empty($purchase['payments'])) {
+                continue;
+            }
+
+            $currency = $purchase['amount']['currency_code'];
+
+            if (!empty($purchase['payments']['refunds'])) {
+                foreach ($purchase['payments']['refunds'] as $refund) {
+                    $totalRefunded += $refund['amount']['value'];
+                }
+            }
+
+            if (!empty($purchase['payments']['captures'])) {
+                foreach ($purchase['payments']['captures'] as $payment) {
+                    $balance += $payment['amount']['value'];
+                }
+            }
+        }
+
+        return number_format($balance - $totalRefunded, 2) . " $currency";
     }
 }
