@@ -282,6 +282,7 @@ class OrderPresenter
             if (!empty($purchase['payments']['captures'])) {
                 foreach ($purchase['payments']['captures'] as $payment) {
                     $balance += $payment['amount']['value'];
+                    $balance -= $payment['seller_receivable_breakdown']['paypal_fee']['value'];
                 }
             }
         }

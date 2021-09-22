@@ -89,78 +89,7 @@
     {/foreach}
     </tbody>
   </table>
-  {foreach $orderPayPal.transactions as $orderPayPalTransaction}
-    {if $orderPayPalTransaction.isRefundable}
-      {assign var="maxAmountRefundable" value=$orderPayPalTransaction.maxAmountRefundable|string_format:"%.2f"}
-      {assign var="orderPayPalRefundAmountIdentifier" value='orderPayPalRefundAmount'|cat:$orderPayPalTransaction.id}
-      <div id="ps-checkout-refund-{$orderPayPalTransaction.id|escape:'html':'UTF-8'}" class="modal fade ps-checkout-refund" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <form action="{$orderPayPalBaseUrl|escape:'html':'UTF-8'}" method="POST" class="form-horizontal ps-checkout-refund-form">
-              <div class="modal-header">
-                <h5 class="modal-title">
-                  {$moduleName|escape:'html':'UTF-8'} - {l s='Refund' mod='ps_checkout'}
-                </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="{l s='Cancel' mod='ps_checkout'}">
-                  <span aria-hidden="true">×</span>
-                </button>
-              </div>
-              <div class="modal-body mb-2">
-                <div class="modal-notifications">
-                </div>
-                <div class="modal-content-container">
-                  <input name="ajax" type="hidden" value="1">
-                  <input name="action" type="hidden" value="RefundOrder">
-                  <input name="orderPayPalRefundTransaction" type="hidden" value="{$orderPayPalTransaction.id|escape:'html':'UTF-8'}">
-                  <input name="orderPayPalRefundOrder" type="hidden" value="{$orderPayPal.id|escape:'html':'UTF-8'}">
-                  <input name="orderPayPalRefundCurrency" type="hidden" value="{$orderPayPalTransaction.currency|escape:'html':'UTF-8'}">
-                  <p class="text-muted">
-                    {l s='Your transaction refund request will be sent to PayPal. After that, you’ll need to manually process the refund action in the PrestaShop order: choose the type of refund (standard or partial) in order to generate credit slip.' mod='ps_checkout'}
-                  </p>
-                  <div class="form-group mb-0">
-                    <label class="form-control-label" for="{$orderPayPalRefundAmountIdentifier|escape:'html':'UTF-8'}">
-                      {l s='Choose amount to refund (tax included)' mod='ps_checkout'}
-                    </label>
-                    <div class="row">
-                      <div class="col-md-4">
-                        <div class="input-group-append">
-                          <input
-                                  class="form-control text-right"
-                                  name="orderPayPalRefundAmount"
-                                  id="{$orderPayPalRefundAmountIdentifier|escape:'html':'UTF-8'}"
-                                  type="number"
-                                  step=".01"
-                                  min="0.01"
-                                  max="{$maxAmountRefundable|escape:'html':'UTF-8'}"
-                                  value="{$maxAmountRefundable|escape:'html':'UTF-8'}"
-                          >
-                          <div class="input-group-text">{$orderPayPalTransaction.currency|escape:'html':'UTF-8'}</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <p class="text-muted">
-                    {l s='Maximum [AMOUNT_MAX] [CURRENCY] (tax included)' sprintf=['[AMOUNT_MAX]' => $orderPayPalTransaction.maxAmountRefundable|escape:'html':'UTF-8'|string_format:"%.2f", '[CURRENCY]' => $orderPayPalTransaction.currency|escape:'html':'UTF-8'] mod='ps_checkout'}
-                  </p>
-                </div>
-                <div class="modal-loader text-center">
-                  <button class="btn-primary-reverse onclick unbind spinner"></button>
-                </div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
-                  {l s='Cancel' mod='ps_checkout'}
-                </button>
-                <button type="submit" class="btn btn-primary">
-                  {l s='Refund' mod='ps_checkout'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    {/if}
-  {/foreach}
+
 {/if}
 
 {var_dump($orderPayPal)}
@@ -190,13 +119,19 @@
       </dl>
       <div class="panel__cta">
           {l s='Any change on the order?' mod='ps_checkout'}
-        <a href="#" target="_blank">
+        <a id="refund" href="#">
             {l s='Refund' mod='ps_checkout'}
         </a>
       </div>
     </div>
   </div>
   {if !empty($orderPayPal.transactions)}
+      {foreach $orderPayPal.transactions as $orderPayPalTransaction}
+          {if $orderPayPalTransaction.isRefundable}
+              {assign var="maxAmountRefundable" value=$orderPayPalTransaction.maxAmountRefundable|string_format:"%.2f"}
+              {assign var="orderPayPalRefundAmountIdentifier" value='orderPayPalRefundAmount'|cat:$orderPayPalTransaction.id}
+          {/if}
+      {/foreach}
     <div class="select-wrapper">
       <select name="select-tab" id="select-transaction" class="select-wrapper__select">
         {foreach $orderPayPal.transactions as $orderPayPalTransaction}
@@ -273,6 +208,73 @@
   {/if}
 </div>
 
+<div id="ps-checkout-refund" class="modal fade ps-checkout-refund" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form action="{$orderPayPalBaseUrl|escape:'html':'UTF-8'}" method="POST" class="form-horizontal ps-checkout-refund-form">
+        <div class="modal-header">
+          <h5 class="modal-title">
+              {$moduleName|escape:'html':'UTF-8'} - {l s='Refund' mod='ps_checkout'}
+          </h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="{l s='Cancel' mod='ps_checkout'}">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body mb-2">
+          <div class="modal-notifications">
+          </div>
+          <div class="modal-content-container">
+            <input name="ajax" type="hidden" value="1">
+            <input name="action" type="hidden" value="RefundOrder">
+{*            <input name="orderPayPalRefundTransaction" type="hidden" value="{$orderPayPalTransaction.id|escape:'html':'UTF-8'}">*}
+            <input name="orderPayPalRefundOrder" type="hidden" value="{$orderPayPal.id|escape:'html':'UTF-8'}">
+            <input name="orderPayPalRefundCurrency" type="hidden" value="{$orderPayPalTransaction.currency|escape:'html':'UTF-8'}">
+            <p class="text-muted">
+                {l s='Your transaction refund request will be sent to PayPal. After that, you’ll need to manually process the refund action in the PrestaShop order: choose the type of refund (standard or partial) in order to generate credit slip.' mod='ps_checkout'}
+            </p>
+            <div class="form-group mb-0">
+              <label class="form-control-label" for="{$orderPayPalRefundAmountIdentifier|escape:'html':'UTF-8'}">
+                  {l s='Choose amount to refund (tax included)' mod='ps_checkout'}
+              </label>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="input-group-append">
+                    <input
+                      class="form-control text-right"
+                      name="orderPayPalRefundAmount"
+                      id="{$orderPayPalRefundAmountIdentifier|escape:'html':'UTF-8'}"
+                      type="number"
+                      step=".01"
+                      min="0.01"
+                      max="{$maxAmountRefundable|escape:'html':'UTF-8'}"
+                      value="{$maxAmountRefundable|escape:'html':'UTF-8'}"
+                    >
+                    <div class="input-group-text">{$orderPayPalTransaction.currency|escape:'html':'UTF-8'}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="text-muted">
+                {l s='Maximum [AMOUNT_MAX] [CURRENCY] (tax included)' sprintf=['[AMOUNT_MAX]' => $orderPayPalTransaction.maxAmountRefundable|escape:'html':'UTF-8'|string_format:"%.2f", '[CURRENCY]' => $orderPayPalTransaction.currency|escape:'html':'UTF-8'] mod='ps_checkout'}
+            </p>
+          </div>
+          <div class="modal-loader text-center">
+            <button class="btn-primary-reverse onclick unbind spinner"></button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+              {l s='Cancel' mod='ps_checkout'}
+          </button>
+          <button type="submit" class="btn btn-primary">
+              {l s='Refund' mod='ps_checkout'}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <style>
   #ps_checkout .badge.badge-payment {
     background-color: #00B887;
@@ -342,37 +344,35 @@
   #ps_checkout .tabs {
     color: #555555;
     position: relative;
-    border: 2px solid #e5ebf3;
   }
   #ps_checkout [role="tablist"] {
     position: absolute;
     top: 0;
     left: 0;
     max-height: 100%;
+    height: 100%;
     display: none;
     overflow-y: scroll;
     overflow-x: hidden;
   }
   #ps_checkout .tab {
-    border: none;
     background: none;
     box-shadow: none;
     text-align: left;
     padding: 20px 14px;
     color: #555555;
-    border-bottom: 2px solid #e5ebf3;
-    border-right: 2px solid #e5ebf3;
+    border: 2px solid #e5ebf3;
+    border-bottom: none;
     cursor: pointer;
   }
-  #ps_checkout .tab:last-child {
-    border-bottom: none;
+  #ps_checkout .tab:last-child{
+    border-bottom: 2px solid #e5ebf3;
   }
   #ps_checkout .tab:focus{
     outline: none;
   }
   #ps_checkout .tab[aria-selected="true"] {
     border-right: 2px solid #fff;
-    margin-right: -2px;
     position: relative;
     z-index: 2;
   }
@@ -387,6 +387,7 @@
   #ps_checkout .tabpanel-wrapper {
     flex-grow: 1;
     padding: 18px 14px;
+    border: 2px solid #e5ebf3;
   }
   #ps_checkout .tabpanel {
     position: relative;
@@ -444,7 +445,7 @@
     #ps_checkout [role="tablist"] {
       display: flex;
       flex-direction: column;
-      width: 244px;
+      width: 254px;
       flex-shrink: 0;
     }
     #ps_checkout .panel__infos {
