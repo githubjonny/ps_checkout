@@ -122,7 +122,36 @@ const {$} = window;
 
         $(document).on('change', 'input[name="orderPayPalRefundAmount"]', function () {
           const refundModal = $(this).parents(config.orderPayPalModalContainer);
+          const transactionCurrency = refundModal.find(config.orderPayPalRefundButtonValue).data('transaction-currency');
+          const refundValue = $(this).val();
+
           refundModal.find(config.orderPayPalModalNotificationsContainer).empty();
+
+          if (refundValue > 0) {
+            refundModal.find(config.orderPayPalRefundSubmitButton).attr('disabled', false);
+            refundModal.find(config.orderPayPalRefundButtonValue).text( `${refundValue} ${transactionCurrency}`);
+          } else {
+            refundModal.find(config.orderPayPalRefundSubmitButton).attr('disabled', true);
+            refundModal.find(config.orderPayPalRefundButtonValue).text('');
+          }
+        });
+
+        $(document).on('click', config.orderPayPalRefundSubmitButton, function () {
+          const refundModal = $(this).parents(config.orderPayPalModalContainer);
+          $('input[name="orderPayPalRefundAmount"]').attr('disabled', true);
+          refundModal.find(config.orderPayPalRefundSubmitButton).attr('hidden', 'hidden');
+          refundModal.find(config.orderPayPalRefundConfirmButton).attr('hidden', false);
+        });
+
+        $(document).on('click', '.modal.ps-checkout-refund [data-dismiss="modal"]', function () {
+          const refundModal = $(this).parents(config.orderPayPalModalContainer);
+          const refundAmountInput = $('input[name="orderPayPalRefundAmount"]');
+          refundAmountInput.attr('disabled', false);
+          refundAmountInput.val('');
+          refundModal.find(config.orderPayPalRefundConfirmButton).attr('hidden', 'hidden');
+          refundModal.find(config.orderPayPalRefundSubmitButton).attr('hidden', false);
+          refundModal.find(config.orderPayPalRefundSubmitButton).attr('disabled', true);
+          refundModal.find(config.orderPayPalRefundButtonValue).text('');
         });
 
         $(document).on('submit', config.orderPayPalModalRefundForm, function (event) {
