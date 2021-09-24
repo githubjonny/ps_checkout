@@ -461,6 +461,8 @@ class AdminAjaxPrestashopCheckoutController extends ModuleAdminController
             'moduleName' => $this->module->displayName,
             'orderPayPal' => $presenter->present(),
             'orderPayPalBaseUrl' => $this->context->link->getAdminLink('AdminAjaxPrestashopCheckout'),
+            'moduleLogoUri' => $this->module->getPathUri() . 'logo.png',
+            'orderPaymentLogoUri' => $this->module->getPathUri() . 'views/img/' . strtolower($order->payment) . '.svg',
         ]);
 
         $this->ajaxDie(json_encode([

@@ -49,15 +49,15 @@ class OrderPresenter
      */
     public function present()
     {
-        return [
-            'id' => $this->orderPayPal['id'],
-            'intent' => $this->orderPayPal['intent'],
-            'status' => $this->getOrderStatus(),
-            'transactions' => $this->getTransactions(),
-            'total' => $this->getTotal(),
-            'balance' => $this->getBalance(),
-            'payment_mode' => 'PayPal',
-        ];
+        return array_merge(
+            [
+                'id' => $this->orderPayPal['id'],
+                'intent' => $this->orderPayPal['intent'],
+                'status' => $this->getOrderStatus(),
+                'transactions' => $this->getTransactions(),
+            ],
+            $this->getOrderTotals()
+        );
     }
 
     /**
@@ -288,5 +288,48 @@ class OrderPresenter
         }
 
         return number_format($balance - $totalRefunded, 2) . " $currency";
+    }
+
+    /**
+     * returns order total, balance and fees.
+     * Added into one function because they all require same foreach
+     *
+     * @return array
+     */
+    private function getOrderTotals()
+    {
+        $total = 0.0;
+        $balance = 0.0;
+        $totalRefunded = 0.0;
+        $fees = 0.0;
+
+        $currency = '';
+
+        foreach ($this->orderPayPal['purchase_units'] as $purchase) {
+            if (empty($purchase['payments'])) {
+                continue;
+            }
+
+            $currency = $purchase['amount']['currency_code'];
+
+            if (!empty($purchase['payments']['refunds'])) {
+                foreach ($purchase['payments']['refunds'] as $refund) {
+                    $totalRefunded += $refund['amount']['value'];
+                }
+            }
+
+            if (!empty($purchase['payments']['captures'])) {
+                foreach ($purchase['payments']['captures'] as $payment) {
+                    $total += $payment['amount']['value'];
+                    $fees -= $payment['seller_receivable_breakdown']['paypal_fee']['value'];
+                }
+            }
+        }
+
+        return [
+            'total' => number_format($total, 2) . " $currency",
+            'fees' => number_format($fees, 2) . " $currency",
+            'balance' => number_format($total - $totalRefunded + $fees, 2) . " $currency",
+        ];
     }
 }

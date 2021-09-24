@@ -16,8 +16,6 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  *}
-{var_dump($orderPayPal)}
-
 <div>
   <div class="panel-wrapper">
     <div class="panel">
@@ -39,14 +37,8 @@
         </dt>
         <dd>{$orderPayPal.balance}</dd>
         <dt data-grid-area="payment">{l s='Payment mode' mod='ps_checkout'}</dt>
-        <dd>{$orderPayPal.payment_mode}</dd>
+        <dd><img src="{$orderPaymentLogoUri}" alt="Payment mode" height="20"></dd>
       </dl>
-{*      <div class="panel__cta">*}
-{*          {l s='Any change on the order?' mod='ps_checkout'}*}
-{*        <a id="refund" href="#">*}
-{*            {l s='Refund' mod='ps_checkout'}*}
-{*        </a>*}
-{*      </div>*}
     </div>
   </div>
   {if !empty($orderPayPal.transactions)}
@@ -134,7 +126,7 @@
                   <form action="{$orderPayPalBaseUrl|escape:'html':'UTF-8'}" method="POST" class="form-horizontal ps-checkout-refund-form">
                     <div class="modal-header">
                       <h5 class="modal-title">
-                          {$moduleName|escape:'html':'UTF-8'} - {l s='Refund' mod='ps_checkout'}
+                          <img src="{$moduleLogoUri}" width="20" height="20" alt="logo"> {l s='Refund order totally or partially' mod='ps_checkout'}
                       </h5>
                       <button type="button" class="close" data-dismiss="modal" aria-label="{l s='Cancel' mod='ps_checkout'}">
                         <span aria-hidden="true">×</span>
@@ -144,21 +136,51 @@
                       <div class="modal-notifications">
                       </div>
                       <div class="modal-content-container">
-                        <input name="ajax" type="hidden" value="1">
-                        <input name="action" type="hidden" value="RefundOrder">
-                        <input name="orderPayPalRefundTransaction" type="hidden" value="{$orderPayPalTransaction.id|escape:'html':'UTF-8'}">
-                        <input name="orderPayPalRefundOrder" type="hidden" value="{$orderPayPal.id|escape:'html':'UTF-8'}">
-                        <input name="orderPayPalRefundCurrency" type="hidden" value="{$orderPayPalTransaction.currency|escape:'html':'UTF-8'}">
-                        <p class="text-muted">
-                            {l s='Your transaction refund request will be sent to PayPal. After that, you’ll need to manually process the refund action in the PrestaShop order: choose the type of refund (standard or partial) in order to generate credit slip.' mod='ps_checkout'}
-                        </p>
                         <div class="form-group mb-0">
-                          <label class="form-control-label" for="{$orderPayPalRefundAmountIdentifier|escape:'html':'UTF-8'}">
-                              {l s='Choose amount to refund (tax included)' mod='ps_checkout'}
-                          </label>
                           <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-12">
+                              <p class="mb-2">
+                                  <b>{l s='Order details' mod='ps_checkout'}</b>
+                              </p>
+                            </div>
+                          </div>
+                          <div class="order-totals">
+                            <div class='order-totals-column'>
+                              <p>{l s='Gross amount' mod='ps_checkout'}</p>
+                              <p>{l s='Fees (Tax Incl.)' mod='ps_checkout'}</p>
+                              <p>
+                                <b>{l s='Amount (Tax Incl.)' mod='ps_checkout'}</b>
+                              </p>
+                            </div>
+                            <div class='order-totals-column'>
+                              <p>
+                                <b>{$orderPayPal.total}</b>
+                              </p>
+                              <p>
+                                <b>{$orderPayPal.fees}</b>
+                              </p>
+                              <p>
+                                <b>{$orderPayPal.balance}</b>
+                              </p>
+                            </div>
+                          </div>
+                          <div class="row separator">
+
+                          </div>
+                          <div class="row">
+                            <div class="col-md-6">
+                              <label class="form-control-label" for="{$orderPayPalRefundAmountIdentifier|escape:'html':'UTF-8'}">
+                                <b>{l s='Net amount to refund' mod='ps_checkout'}</b>
+                              </label>
+                            </div>
+                            <div class="col-md-6">
+                              <input name="ajax" type="hidden" value="1">
+                              <input name="action" type="hidden" value="RefundOrder">
+                              <input name="orderPayPalRefundTransaction" type="hidden" value="{$orderPayPalTransaction.id|escape:'html':'UTF-8'}">
+                              <input name="orderPayPalRefundOrder" type="hidden" value="{$orderPayPal.id|escape:'html':'UTF-8'}">
+                              <input name="orderPayPalRefundCurrency" type="hidden" value="{$orderPayPalTransaction.currency|escape:'html':'UTF-8'}">
                               <div class="input-group-append">
+                                <div class="input-group-text">{$orderPayPalTransaction.currency|escape:'html':'UTF-8'}</div>
                                 <input
                                   class="form-control text-right"
                                   name="orderPayPalRefundAmount"
@@ -168,13 +190,18 @@
                                   min="0.01"
                                   max="{$maxAmountRefundable|escape:'html':'UTF-8'}"
                                 >
-                                <div class="input-group-text">{$orderPayPalTransaction.currency|escape:'html':'UTF-8'}</div>
                               </div>
+                              <p class="text-muted">
+                                {l s='Max [AMOUNT_MAX] [CURRENCY] (tax incl.)' sprintf=['[AMOUNT_MAX]' => $orderPayPalTransaction.maxAmountRefundable|escape:'html':'UTF-8'|string_format:"%.2f", '[CURRENCY]' => $orderPayPalTransaction.currency|escape:'html':'UTF-8'] mod='ps_checkout'}
+                                <a href="#">
+                                    {l s='Learn more' mod='ps_checkout'}
+                                </a>
+                              </p>
                             </div>
                           </div>
                         </div>
                         <p class="text-muted">
-                            {l s='Maximum [AMOUNT_MAX] [CURRENCY] (tax included)' sprintf=['[AMOUNT_MAX]' => $orderPayPalTransaction.maxAmountRefundable|escape:'html':'UTF-8'|string_format:"%.2f", '[CURRENCY]' => $orderPayPalTransaction.currency|escape:'html':'UTF-8'] mod='ps_checkout'}
+                            {l s='Your transaction refund request will be sent to PayPal. After that, you’ll need to manually process the refund action in the PrestaShop order: choose the type of refund (standard or partial) in order to generate credit slip.' mod='ps_checkout'}
                         </p>
                       </div>
                       <div class="modal-loader text-center">
@@ -204,248 +231,3 @@
     </div>
   {/if}
 </div>
-
-<style>
-  #ps_checkout .badge.badge-payment {
-    background-color: #00B887;
-    color: #fff;
-  }
-
-  #ps_checkout .badge.badge-refund {
-    background-color: #34219E;
-    color: #fff;
-  }
-</style>
-<style>
-  #ps_checkout .panel-wrapper {
-    flex-grow: 1;
-    padding: 18px 14px;
-    border: 2px solid #e4ebf3;
-    margin-bottom: 10px;
-  }
-  #ps_checkout .panel {
-    background: none;
-    box-shadow: none;
-    text-align: left;
-    color: #555555;
-    position: relative;
-  }
-  #ps_checkout .panel__title, #ps_checkout .tabpanel__title {
-    display: block;
-    color: #878787;
-    margin: 0;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #eeeeee;
-  }
-  #ps_checkout .panel__infos {
-    margin-top: 16px;
-    margin-bottom: 0;
-    padding-bottom: 16px;
-    display: grid;
-    grid-template-columns: 116px 1fr;
-    grid-column-gap: 16px;
-    grid-row-gap: 8px;
-  }
-  #ps_checkout .panel__infos dd {
-    font-weight: 400;
-    text-align: right;
-  }
-  #ps_checkout .panel__cta {
-    text-align: center;
-  }
-  #ps_checkout .panel__cta a {
-    font-weight: 600;
-    color: #555;
-    text-decoration: underline;
-    text-align: center;
-    display: inline-block;
-  }
-  #ps_checkout .select-wrapper {
-    margin-bottom: 1.5em;
-  }
-  #ps_checkout .select-wrapper__select {
-    width: 100%;
-    background-color: #fff;
-    border: 1px solid #B3C7CD;
-    border-radius: 3px;
-    color: #363A41;
-    padding: 0.5em;
-  }
-  #ps_checkout .tabs {
-    color: #555555;
-    position: relative;
-  }
-  #ps_checkout [role="tablist"] {
-    position: absolute;
-    top: 0;
-    left: 0;
-    max-height: 100%;
-    height: 100%;
-    display: none;
-    overflow-y: scroll;
-    overflow-x: hidden;
-  }
-  #ps_checkout .tab {
-    background: none;
-    box-shadow: none;
-    text-align: left;
-    padding: 20px 14px;
-    color: #555555;
-    border: 2px solid #e5ebf3;
-    border-bottom: none;
-    cursor: pointer;
-  }
-  #ps_checkout .tab:last-child{
-    border-bottom: 2px solid #e5ebf3;
-  }
-  #ps_checkout .tab:focus{
-    outline: none;
-  }
-  #ps_checkout .tab[aria-selected="true"] {
-    border-right: 2px solid #fff;
-    position: relative;
-    z-index: 2;
-  }
-  #ps_checkout .tab__btn-title {
-    display: block;
-    margin-bottom: 8px;
-  }
-  #ps_checkout .tab__btn-infos {
-    display: flex;
-    justify-content: space-between;
-  }
-  #ps_checkout .tabpanel-wrapper {
-    flex-grow: 1;
-    padding: 18px 14px;
-    border: 2px solid #e5ebf3;
-  }
-  #ps_checkout .tabpanel {
-    position: relative;
-  }
-  #ps_checkout .tabpanel__infos {
-    margin-top: 16px;
-    margin-bottom: 0;
-    padding-bottom: 16px;
-    display: grid;
-    grid-template-columns: 116px 1fr;
-    grid-column-gap: 16px;
-    grid-row-gap: 8px;
-  }
-  .tabpanel__infos + .tabpanel__infos {
-    padding-bottom: 0;
-  }
-  #ps_checkout .tabpanel__infos dd {
-    font-weight: 700;
-    text-align: right;
-  }
-  #ps_checkout .tabpanel__cta {
-    font-weight: 600;
-    color: #555;
-    text-decoration: underline;
-    text-align: center;
-    display: block;
-  }
-  #ps_checkout .tabpanel__cta:after {
-    content: '';
-    display: inline-block;
-    vertical-align: middle;
-    margin-left: 0.8em;
-    text-decoration: none;
-    width: 1.15em;
-    height: 1.15em;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 0 24 24' width='24'%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z'/%3E%3C/svg%3E");
-    background-size: contain;
-  }
-  @media screen and (min-width: 780px) {
-    #ps_checkout .panel__cta {
-      position: absolute;
-      top: 0;
-      right: 0;
-    }
-    #ps_checkout .panel__infos dd {
-      text-align: left;
-    }
-    #ps_checkout .select-wrapper {
-      display: none;
-    }
-    #ps_checkout .tabs {
-      display: flex;
-      padding-left: 244px;
-    }
-    #ps_checkout [role="tablist"] {
-      display: flex;
-      flex-direction: column;
-      width: 254px;
-      flex-shrink: 0;
-    }
-    #ps_checkout .panel__infos {
-      grid-template-columns: max-content;
-      grid-template-areas:
-            "reference referenceValue total totalValue payment paymentValue"
-            "status statusValue balance balanceValue empty empty";
-    }
-    #ps_checkout [data-grid-area="reference"] {
-      grid-area: reference;
-    }
-    #ps_checkout [data-grid-area="reference"] + dd {
-      grid-area: referenceValue;
-    }
-    #ps_checkout [data-grid-area="total"] {
-      grid-area: total;
-    }
-    #ps_checkout [data-grid-area="total"] + dd {
-      grid-area: totalValue;
-    }
-    #ps_checkout [data-grid-area="payment"] {
-      grid-area: payment;
-    }
-    #ps_checkout [data-grid-area="payment"] + dd {
-      grid-area: paymentValue;
-    }
-    #ps_checkout [data-grid-area="status"] {
-      grid-area: status;
-    }
-    #ps_checkout [data-grid-area="status"] + dd {
-      grid-area: statusValue;
-    }
-    #ps_checkout [data-grid-area="balance"] {
-      grid-area: balance;
-    }
-    #ps_checkout [data-grid-area="balance"] + dd {
-      grid-area: balanceValue;
-    }
-    #ps_checkout .tabpanel__infos dd {
-      font-weight: 700;
-      text-align: left;
-    }
-    #ps_checkout .tabpanel__cta {
-      position: absolute;
-      top: 0;
-      right: 0;
-    }
-  }
-
-  /* width */
-  #ps_checkout [role="tablist"]::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  #ps_checkout [role="tablist"]::-webkit-scrollbar-thumb {
-    background: rgba(169, 169, 169, 0.15);
-    border-radius: 20px;
-  }
-
-  /*!* Handle on hover *!*/
-  #ps_checkout [role="tablist"]::-webkit-scrollbar-thumb:hover {
-    background: rgba(56, 56, 56, 0.33);
-  }
-
-  #ps_checkout .balance-info-icon:after {
-    font-style: normal;
-    font-family: "Material Icons";
-    content: "\E001";
-    display: inline-block;
-    vertical-align: middle;
-    color: #878787;
-  }
-</style>
