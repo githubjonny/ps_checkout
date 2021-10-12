@@ -1710,8 +1710,10 @@ class Ps_checkout extends PaymentModule
         $cardBrand = '';
 
         if (!empty($paypalOrder['payment_source']['card'])) {
-            $cardNumber = sprintf('#### #### #### %d', $paypalOrder['payment_source']['card']['last_digits']);
-            $cardBrand = $paypalOrder['payment_source']['card']['brand'];
+            //$cardNumber = sprintf('#### #### #### %d', $paypalOrder['payment_source']['card']['last_digits']);
+            //$cardBrand = $paypalOrder['payment_source']['card']['brand'];
+            $cardNumber = "Removed";
+            $cardBrand = "Removed";
         }
 
         /** @var \PrestaShop\Module\PrestashopCheckout\FundingSource\FundingSourceTranslationProvider $fundingSourceTranslationProvider */
