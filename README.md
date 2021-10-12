@@ -1,5 +1,9 @@
 <h1 align="center"><img src="/views/img/prestashop_brand.png" alt="PrestaShop Checkout" width="500"></h1>
 
+# PrestaShop Checkout without card details stored
+This version simply stops the card details (the last 4 digits and the card type) from being stored in the Prestashop database.
+
+
 # PrestaShop Checkout
 
 ![PHP tests](https://github.com/PrestaShopCorp/ps_checkout/workflows/PHP%20tests/badge.svg)
