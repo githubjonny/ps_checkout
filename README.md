@@ -1,7 +1,7 @@
 <h1 align="center"><img src="/views/img/prestashop_brand.png" alt="PrestaShop Checkout" width="500"></h1>
 
 # PrestaShop Checkout without card details stored
-This version simply stops the card details (the last 4 digits and the card type) from being stored in the Prestashop database.
+This version simply stops the card details (the last 4 digits and the card type) from being stored in the Prestashop database. Ideally this should be controlled by a toggle switch in the module admin (anyone who know how to do this?).
 
 
 # PrestaShop Checkout
